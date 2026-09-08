@@ -4,10 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
+    "build": "prisma generate && prisma db push --accept-data-loss && node prisma/seed_users.mjs && next build",
+    "start": "prisma db push --accept-data-loss && node prisma/seed_users.mjs && next start",
     "lint": "next lint",
-    "seed": "node prisma/seed.mjs",
+    "seed": "node prisma/seed_users.mjs",
     "postinstall": "prisma generate"
   },
   "dependencies": {

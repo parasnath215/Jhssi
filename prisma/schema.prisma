@@ -1,0 +1,266 @@
+// Prisma Schema for JHSSI Journal Publishing & Peer-Review System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ============================================
+// USER & AUTHENTICATION MODELS
+// ============================================
+
+model User {
+  id           String    @id @default(uuid())
+  name         String
+  email        String    @unique
+  password     String
+  role         String    @default("AUTHOR") // "AUTHOR", "REVIEWER", "ADMIN", "STUDENT"
+  institution  String?
+  fieldOfStudy String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Submissions created as an Author
+  submissions        Submission[] @relation("AuthorSubmissions")
+  
+  // Submissions assigned as a Reviewer
+  assignedReviews    Submission[] @relation("ReviewerAssignments")
+  
+  // Reviews conducted
+  reviews            Review[]
+
+  @@map("users")
+}
+
+// ============================================
+// SUBMISSION MANAGEMENT MODELS
+// ============================================
+
+model Submission {
+  id                 String    @id @default(uuid())
+  title              String
+  abstract           String
+  keywords           String?   // Comma-separated tags
+  category           String?   // Humanities, Social Sciences, etc.
+  
+  // Dual-Manuscript Double-Blind Submission Architecture:
+  fileWithAuthor     String    // Identified manuscript (contains author names/affiliations)
+  fileWithoutAuthor  String    // Anonymized manuscript (strictly blind, no identifying info)
+  
+  status             String    @default("PENDING") // PENDING, UNDER_REVIEW, REVISION_REQUESTED, RESUBMITTED, REVIEWER_APPROVED, PUBLISHED, REJECTED
+  version            Int       @default(1)
+
+  // Submitting Author
+  authorId           String
+  author             User      @relation("AuthorSubmissions", fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Assigned Peer Reviewer
+  assignedReviewerId String?
+  assignedReviewer   User?     @relation("ReviewerAssignments", fields: [assignedReviewerId], references: [id])
+
+  // Publication Metadata (Set upon Final Admin Confirmation)
+  doi                String?
+  volume             String?
+  issue              String?
+  pages              String?
+  publishedAt        DateTime?
+
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  // Relations
+  reviews            Review[]
+  revisionHistories  RevisionHistory[]
+
+  @@index([authorId])
+  @@index([assignedReviewerId])
+  @@index([status])
+  @@map("submissions")
+}
+
+// ============================================
+// REVISION HISTORY MODEL
+// ============================================
+
+model RevisionHistory {
+  id                 String     @id @default(uuid())
+  submissionId       String
+  submission         Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  
+  version            Int
+  fileWithAuthor     String
+  fileWithoutAuthor  String
+  responseLetter     String?    // Author's explanation of revisions made
+  submittedAt        DateTime   @default(now())
+
+  @@index([submissionId])
+  @@map("revision_histories")
+}
+
+// ============================================
+// PEER REVIEW MODEL
+// ============================================
+
+model Review {
+  id                 String     @id @default(uuid())
+  recommendation     String     // "APPROVE", "REVISE", "REJECT"
+  commentsForAuthor  String     // Constructive comments seen by author
+  confidentialNotes  String?    // Confidential comments seen only by Admin
+  
+  // Evaluation Rubric (1 to 5)
+  originalityScore   Int?       @default(4)
+  methodologyScore   Int?       @default(4)
+  clarityScore       Int?       @default(4)
+  significanceScore  Int?       @default(4)
+
+  versionReviewed    Int        @default(1)
+
+  submissionId       String
+  submission         Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  reviewerId         String
+  reviewer           User       @relation(fields: [reviewerId], references: [id], onDelete: Cascade)
+
+  createdAt          DateTime   @default(now())
+
+  @@index([submissionId])
+  @@index([reviewerId])
+  @@map("reviews")
+}
+
+// ============================================
+// AD TRACKING MODELS
+// ============================================
+
+model Ad {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  imageUrl    String
+  targetUrl   String
+  placement   String
+  isActive    Boolean  @default(true)
+  startDate   DateTime @default(now())
+  endDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  impressions AdImpression[]
+  clicks      AdClick[]
+  views       AdView[]
+
+  @@map("ads")
+}
+
+model AdImpression {
+  id        String   @id @default(uuid())
+  adId      String
+  sessionId String
+  userId    String?
+  userAgent String?
+  ipAddress String?
+  page      String
+  timestamp DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId])
+  @@index([timestamp])
+  @@index([sessionId])
+  @@map("ad_impressions")
+}
+
+model AdView {
+  id           String   @id @default(uuid())
+  adId         String
+  sessionId    String
+  userId       String?
+  userAgent    String?
+  ipAddress    String?
+  page         String
+  viewDuration Int?
+  viewedAt     DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId])
+  @@index([viewedAt])
+  @@index([sessionId])
+  @@map("ad_views")
+}
+
+model AdClick {
+  id        String   @id @default(uuid())
+  adId      String
+  sessionId String
+  userId    String?
+  userAgent String?
+  ipAddress String?
+  page      String
+  clickedAt DateTime @default(now())
+
+  ad Ad @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@index([adId])
+  @@index([clickedAt])
+  @@index([sessionId])
+  @@map("ad_clicks")
+}
+
+model AdDailyMetrics {
+  id              String   @id @default(uuid())
+  adId            String
+  date            DateTime
+  impressions     Int      @default(0)
+  views           Int      @default(0)
+  clicks          Int      @default(0)
+  uniqueVisitors  Int      @default(0)
+  ctr             Float    @default(0)
+  viewability     Float    @default(0)
+  avgViewDuration Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([adId, date])
+  @@index([adId])
+  @@index([date])
+  @@map("ad_daily_metrics")
+}
+
+// ============================================
+// SYSTEM LOGS & TELEMETRY
+// ============================================
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String   @default("INFO") // "INFO", "WARN", "ERROR", "SECURITY", "SYSTEM"
+  category  String   @default("SYSTEM") // "AUTH", "MAINTENANCE", "SUBMISSION", "REVIEW", "PUBLISH", "SYSTEM", "API"
+  message   String
+  details   String?  // Stack trace, payload JSON, or context
+  ipAddress String?
+  userId    String?
+  userName  String?
+  createdAt DateTime @default(now())
+
+  @@index([level])
+  @@index([category])
+  @@index([createdAt])
+  @@map("system_logs")
+}
+
+// ============================================
+// SYSTEM CONFIGURATION & KILLSWITCH
+// ============================================
+
+model SystemSetting {
+  key         String   @id
+  value       String
+  updatedAt   DateTime @updatedAt
+  updatedBy   String?
+
+  @@map("system_settings")
+}

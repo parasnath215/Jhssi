@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+html, body {
+  overflow-x: hidden;
+}
+
+
+:root {
+  --background: #F6F1E8;
+  --foreground: #4A4036;
+}
+
+@theme {
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-playfair);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif), Georgia, serif;
+}

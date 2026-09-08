@@ -18,8 +18,16 @@ export default function Hero() {
       {/* Left Content Overlay */}
       <div className="relative z-10 w-full px-6 md:px-12 lg:px-12">
         <div className="max-w-2xl">
+          {/* ISSN Banner Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 bg-white/90 backdrop-blur-xs border border-[#C8A45D] rounded-full text-xs font-bold text-[#503221] shadow-xs mb-4">
+            <span className="w-2 h-2 rounded-full bg-[#C8A45D] animate-pulse"></span>
+            <span>ISSN: 2581-8791 (Online)</span>
+            <span className="text-[#C8A45D]">•</span>
+            <span className="font-medium text-[#6B4A2E]">Open Access International Journal</span>
+          </div>
+
           {/* Two Lines of Heading */}
-          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-[#503221] leading-tight mb-6 -mt-4">
+          <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl text-[#503221] leading-tight mb-6">
             Journal <span className="italic">of</span> <span>Humanities</span><br /> 
             <span className="italic">and</span> <span>Social Sciences Invention</span>
           </h1>

@@ -27,7 +27,7 @@ export default function Footer() {
               </div>
               <div>
                 <h4 className="font-serif text-lg font-semibold">JHSSI</h4>
-                <p className="text-xs text-[#A8B8A0]">Since 2010</p>
+                <p className="text-xs text-[#C8A45D] font-mono font-bold">ISSN: 2581-8791 (Online)</p>
               </div>
             </div>
             <p className="text-[#A8B8A0] text-sm leading-relaxed">

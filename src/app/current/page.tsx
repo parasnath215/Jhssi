@@ -206,7 +206,7 @@ export default function CurrentIssuePage() {
             />
             
             <motion.p 
-              className="text-[#4A4036] text-lg md:text-xl max-w-3xl mx-auto mb-6"
+              className="text-[#4A4036] text-lg md:text-xl max-w-3xl mx-auto mb-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7, duration: 0.8 }}
@@ -215,6 +215,9 @@ export default function CurrentIssuePage() {
               <br />
               {issueDetails.title}
             </motion.p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/80 backdrop-blur-xs border border-[#C8A45D] rounded-full text-xs font-bold text-[#3F2A1D] shadow-xs">
+              <span>ISSN: 2581-8791 (Online)</span>
+            </div>
           </motion.div>
         </div>
       </section>

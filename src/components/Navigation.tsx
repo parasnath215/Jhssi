@@ -140,19 +140,47 @@ export default function Navigation() {
 
   return (
     <>
+      {/* Global Journal Header Banner */}
+      <div className="w-full bg-[#3F2A1D] text-[#E6DDCF] py-2 px-4 md:px-8 border-b border-[#C8A45D]/40">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <span className="inline-flex items-center gap-1.5 font-bold text-white bg-[#C8A45D]/25 px-2.5 py-0.5 rounded-full border border-[#C8A45D]/60 tracking-wider text-[11px] sm:text-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#C8A45D] animate-pulse"></span>
+              ISSN: 2581-8791 (Online)
+            </span>
+            <span className="hidden sm:inline-block text-[#C8A45D]">•</span>
+            <span className="text-[#F6F1E8] font-medium hidden sm:inline-block">
+              Journal of Humanities & Social Sciences Invention
+            </span>
+          </div>
+          <div className="flex items-center gap-3 text-[11px] text-[#E6DDCF]/90">
+            <span className="hidden md:inline-block">Crossref DOI Indexed</span>
+            <span className="hidden md:inline-block text-[#C8A45D]">•</span>
+            <span className="hidden sm:inline-block">Peer-Reviewed Open Access</span>
+            <span className="hidden sm:inline-block text-[#C8A45D]">•</span>
+            <span className="font-semibold text-[#C8A45D]">Impact Factor: 5.48</span>
+          </div>
+        </div>
+      </div>
+
       <nav className="w-full bg-white border-b border-[#E6DDCF] px-4 md:px-8 py-3 md:py-4 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           {/* Logo Section */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
             <div className="w-11 h-11 relative rounded-full bg-[#F6F1E8] border border-[#E6DDCF] flex items-center justify-center text-[#6B4A2E] font-serif font-bold text-xl shadow-xs group-hover:scale-105 transition-transform">
               J
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-serif text-base font-bold text-[#3F2A1D] tracking-wider">
-                JHSSI
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="font-serif text-base font-bold text-[#3F2A1D] tracking-wider">
+                  JHSSI
+                </span>
+                <span className="text-[10px] font-bold text-[#6B4A2E] bg-[#F6F1E8] px-1.5 py-0.5 rounded-md border border-[#E6DDCF] font-mono">
+                  ISSN: 2581-8791
+                </span>
+              </div>
               <span className="font-serif text-xs text-[#6B4A2E]">
-                Journal
+                Journal of Humanities & Social Sciences Invention
               </span>
             </div>
           </Link>

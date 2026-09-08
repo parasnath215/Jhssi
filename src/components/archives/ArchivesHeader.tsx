@@ -25,6 +25,10 @@ export default function ArchivesHeader() {
           transition={{ duration: 0.8 }}
           className="bg-transparent  p-8 rounded-2xl shadow-lg   text-center"
         >
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/80 backdrop-blur-xs border border-[#C8A45D] rounded-full text-xs font-bold text-[#3F2A1D] shadow-xs mb-3">
+            <span>ISSN: 2581-8791 (Online)</span>
+          </div>
+
           <h1 className="font-serif text-4xl md:text-5xl text-[#3F2A1D] mb-4">
             Journal Archives
           </h1>

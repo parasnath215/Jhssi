@@ -1,0 +1,134 @@
+[
+  {
+    "year": "2022",
+    "quarters": [
+      {
+        "name": "Apr-2022 to Jun-2022",
+        "papers": [
+          {
+            "name": "34-Research Materials-80-1-2-20230319 v1.pdf",
+            "url": "/Research_Papers/2022/Apr-2022%20to%20Jun-2022/34-Research%20Materials-80-1-2-20230319%20v1.pdf"
+          },
+          {
+            "name": "52-Article Text-118-1-2-20230413.pdf",
+            "url": "/Research_Papers/2022/Apr-2022%20to%20Jun-2022/52-Article%20Text-118-1-2-20230413.pdf"
+          },
+          {
+            "name": "54-Other-121-2-2-20230421.pdf",
+            "url": "/Research_Papers/2022/Apr-2022%20to%20Jun-2022/54-Other-121-2-2-20230421.pdf"
+          },
+          {
+            "name": "55-Article Text-122-2-2-20230422.pdf",
+            "url": "/Research_Papers/2022/Apr-2022%20to%20Jun-2022/55-Article%20Text-122-2-2-20230422.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Jan-2022 to Mar-2022",
+        "papers": [
+          {
+            "name": "36-Article Text-82-1-2-20230321 v1.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/36-Article%20Text-82-1-2-20230321%20v1.pdf"
+          },
+          {
+            "name": "45-Transcripts-105-1-2-20230410 v1.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/45-Transcripts-105-1-2-20230410%20v1.pdf"
+          },
+          {
+            "name": "46-Article Text-106-1-2-20230410 v1.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/46-Article%20Text-106-1-2-20230410%20v1.pdf"
+          },
+          {
+            "name": "58-Article Text-138-4-2-20230503.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/58-Article%20Text-138-4-2-20230503.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Jul-2022 to Sep-2022",
+        "papers": [
+          {
+            "name": "28-Article Text-72-1-4-20230224 v1.pdf",
+            "url": "/Research_Papers/2022/Jul-2022%20to%20Sep-2022/28-Article%20Text-72-1-4-20230224%20v1.pdf"
+          },
+          {
+            "name": "42-Article Text-85-1-2-20230401 v1.pdf",
+            "url": "/Research_Papers/2022/Jul-2022%20to%20Sep-2022/42-Article%20Text-85-1-2-20230401%20v1.pdf"
+          },
+          {
+            "name": "47-Article Text-107-1-2-20230410 v1.pdf",
+            "url": "/Research_Papers/2022/Jul-2022%20to%20Sep-2022/47-Article%20Text-107-1-2-20230410%20v1.pdf"
+          },
+          {
+            "name": "50-Article Text-110-1-2-20230411 v1.pdf",
+            "url": "/Research_Papers/2022/Jul-2022%20to%20Sep-2022/50-Article%20Text-110-1-2-20230411%20v1.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Oct-2022 to Dec-2022",
+        "papers": [
+          {
+            "name": "27-Article Text-93-1-11-20230225 v1.pdf",
+            "url": "/Research_Papers/2022/Oct-2022%20to%20Dec-2022/27-Article%20Text-93-1-11-20230225%20v1.pdf"
+          },
+          {
+            "name": "35-Article Text-81-1-2-20230320 v1.pdf",
+            "url": "/Research_Papers/2022/Oct-2022%20to%20Dec-2022/35-Article%20Text-81-1-2-20230320%20v1.pdf"
+          },
+          {
+            "name": "39-Article Text-84-2-2-20230322 v1.pdf",
+            "url": "/Research_Papers/2022/Oct-2022%20to%20Dec-2022/39-Article%20Text-84-2-2-20230322%20v1.pdf"
+          },
+          {
+            "name": "44-Article Text-91-1-2-20230406 v1.pdf",
+            "url": "/Research_Papers/2022/Oct-2022%20to%20Dec-2022/44-Article%20Text-91-1-2-20230406%20v1.pdf"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "year": "2023",
+    "quarters": [
+      {
+        "name": "Apr-2023 to Jun-2023",
+        "papers": []
+      },
+      {
+        "name": "Jan-2023 to Mar-2023",
+        "papers": [
+          {
+            "name": "26-Article Text-71-1-4-20230223 v1.pdf",
+            "url": "/Research_Papers/2023/Jan-2023%20to%20Mar-2023/26-Article%20Text-71-1-4-20230223%20v1.pdf"
+          },
+          {
+            "name": "53-Other-120-2-2-20230420.pdf",
+            "url": "/Research_Papers/2023/Jan-2023%20to%20Mar-2023/53-Other-120-2-2-20230420.pdf"
+          },
+          {
+            "name": "56-Article Text-123-1-2-20230424.pdf",
+            "url": "/Research_Papers/2023/Jan-2023%20to%20Mar-2023/56-Article%20Text-123-1-2-20230424.pdf"
+          },
+          {
+            "name": "59-Article Text-139-1-2-20230501.pdf",
+            "url": "/Research_Papers/2023/Jan-2023%20to%20Mar-2023/59-Article%20Text-139-1-2-20230501.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Jul-2023 to Sep-2023",
+        "papers": []
+      },
+      {
+        "name": "Oct-2023 to Dec-2023",
+        "papers": [
+          {
+            "name": "27-Article Text-93-1-11-20230225 v1.pdf",
+            "url": "/Research_Papers/2023/Oct-2023%20to%20Dec-2023/27-Article%20Text-93-1-11-20230225%20v1.pdf"
+          }
+        ]
+      }
+    ]
+  }
+]

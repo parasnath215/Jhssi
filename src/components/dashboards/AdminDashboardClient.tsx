@@ -384,6 +384,14 @@ export default function AdminDashboardClient() {
             </button>
 
             <Link
+              href="/admin/archives"
+              className="text-xs text-[#6B4A2E] hover:underline flex items-center gap-1 hidden sm:flex font-semibold"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Manage Archives</span>
+            </Link>
+
+            <Link
               href="/current"
               className="text-xs text-[#6B4A2E] hover:underline flex items-center gap-1 hidden sm:flex"
             >

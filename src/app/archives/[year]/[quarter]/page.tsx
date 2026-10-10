@@ -32,7 +32,7 @@ export default async function QuarterPage({
           </Link>
           <div>
             <h1 className="text-3xl font-serif font-bold text-[#3F2A1D]">
-              {decodedQuarter.split(' ')[0]} {year}
+              {decodedQuarter.replace(new RegExp(`-${year}`, 'g'), '')} {year}
             </h1>
             <p className="text-gray-500 mt-1">Research Papers Collection</p>
           </div>

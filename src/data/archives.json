@@ -1,7 +1,159 @@
 [
   {
+    "year": "2019",
+    "quarters": [
+      {
+        "name": "Jan-2019 to Mar-2019",
+        "papers": [
+          {
+            "name": "01-2019, 1-7.pdf",
+            "url": "/Assests/2019/01-2019%2C%201-7.pdf"
+          },
+          {
+            "name": "01-2019, 13-20 .pdf",
+            "url": "/Assests/2019/01-2019%2C%2013-20%20.pdf"
+          },
+          {
+            "name": "01-2019, 21-24 .pdf",
+            "url": "/Assests/2019/01-2019%2C%2021-24%20.pdf"
+          },
+          {
+            "name": "01-2019, 25-29 .pdf",
+            "url": "/Assests/2019/01-2019%2C%2025-29%20.pdf"
+          },
+          {
+            "name": "01-2019, 31-36.pdf",
+            "url": "/Assests/2019/01-2019%2C%2031-36.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Apr-2019 to Jun-2019",
+        "papers": []
+      },
+      {
+        "name": "Jul-2019 to Sep-2019",
+        "papers": []
+      },
+      {
+        "name": "Oct-2019 to Dec-2019",
+        "papers": [
+          {
+            "name": "12-2019, 8-12.pdf",
+            "url": "/Assests/2019/12-2019%2C%208-12.pdf"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "year": "2020",
+    "quarters": [
+      {
+        "name": "Jan-2020 to Mar-2020",
+        "papers": [
+          {
+            "name": "02-2020, 1-4 .pdf",
+            "url": "/Assests/2020/02-2020%2C%201-4%20.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Apr-2020 to Jun-2020",
+        "papers": [
+          {
+            "name": "05-2020, 13-17 .pdf",
+            "url": "/Assests/2020/05-2020%2C%2013-17%20.pdf"
+          },
+          {
+            "name": "05-2020, 18-22 .pdf",
+            "url": "/Assests/2020/05-2020%2C%2018-22%20.pdf"
+          },
+          {
+            "name": "05-2020, 5-12 .pdf",
+            "url": "/Assests/2020/05-2020%2C%205-12%20.pdf"
+          }
+        ]
+      },
+      {
+        "name": "Jul-2020 to Sep-2020",
+        "papers": []
+      },
+      {
+        "name": "Oct-2020 to Dec-2020",
+        "papers": []
+      }
+    ]
+  },
+  {
+    "year": "2021",
+    "quarters": [
+      {
+        "name": "Jan-2021 to Mar-2021",
+        "papers": []
+      },
+      {
+        "name": "Apr-2021 to Jun-2021",
+        "papers": []
+      },
+      {
+        "name": "Jul-2021 to Sep-2021",
+        "papers": []
+      },
+      {
+        "name": "Oct-2021 to Dec-2021",
+        "papers": []
+      }
+    ]
+  },
+  {
     "year": "2022",
     "quarters": [
+      {
+        "name": "Jan-2022 to Mar-2022",
+        "papers": [
+          {
+            "name": "01-2022, 54-58.pdf",
+            "url": "/Assests/2022/01-2022%2C%2054-58.pdf"
+          },
+          {
+            "name": "01-2022, 59-63 .pdf",
+            "url": "/Assests/2022/01-2022%2C%2059-63%20.pdf"
+          },
+          {
+            "name": "01-2022, 64-68 .pdf",
+            "url": "/Assests/2022/01-2022%2C%2064-68%20.pdf"
+          },
+          {
+            "name": "01-2022, 69-75.pdf",
+            "url": "/Assests/2022/01-2022%2C%2069-75.pdf"
+          },
+          {
+            "name": "03-2022, 11-14 .pdf",
+            "url": "/Assests/2022/03-2022%2C%2011-14%20.pdf"
+          },
+          {
+            "name": "03-2022, 15-21 .pdf",
+            "url": "/Assests/2022/03-2022%2C%2015-21%20.pdf"
+          },
+          {
+            "name": "36-Article Text-82-1-2-20230321 v1.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/36-Article%20Text-82-1-2-20230321%20v1.pdf"
+          },
+          {
+            "name": "45-Transcripts-105-1-2-20230410 v1.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/45-Transcripts-105-1-2-20230410%20v1.pdf"
+          },
+          {
+            "name": "46-Article Text-106-1-2-20230410 v1.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/46-Article%20Text-106-1-2-20230410%20v1.pdf"
+          },
+          {
+            "name": "58-Article Text-138-4-2-20230503.pdf",
+            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/58-Article%20Text-138-4-2-20230503.pdf"
+          }
+        ]
+      },
       {
         "name": "Apr-2022 to Jun-2022",
         "papers": [
@@ -24,29 +176,20 @@
         ]
       },
       {
-        "name": "Jan-2022 to Mar-2022",
-        "papers": [
-          {
-            "name": "36-Article Text-82-1-2-20230321 v1.pdf",
-            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/36-Article%20Text-82-1-2-20230321%20v1.pdf"
-          },
-          {
-            "name": "45-Transcripts-105-1-2-20230410 v1.pdf",
-            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/45-Transcripts-105-1-2-20230410%20v1.pdf"
-          },
-          {
-            "name": "46-Article Text-106-1-2-20230410 v1.pdf",
-            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/46-Article%20Text-106-1-2-20230410%20v1.pdf"
-          },
-          {
-            "name": "58-Article Text-138-4-2-20230503.pdf",
-            "url": "/Research_Papers/2022/Jan-2022%20to%20Mar-2022/58-Article%20Text-138-4-2-20230503.pdf"
-          }
-        ]
-      },
-      {
         "name": "Jul-2022 to Sep-2022",
         "papers": [
+          {
+            "name": "08-2022, 42-46 .pdf",
+            "url": "/Assests/2022/08-2022%2C%2042-46%20.pdf"
+          },
+          {
+            "name": "08-2022, 47-50 .pdf",
+            "url": "/Assests/2022/08-2022%2C%2047-50%20.pdf"
+          },
+          {
+            "name": "08-2022, 51-53 .pdf",
+            "url": "/Assests/2022/08-2022%2C%2051-53%20.pdf"
+          },
           {
             "name": "28-Article Text-72-1-4-20230224 v1.pdf",
             "url": "/Research_Papers/2022/Jul-2022%20to%20Sep-2022/28-Article%20Text-72-1-4-20230224%20v1.pdf"
@@ -92,12 +235,28 @@
     "year": "2023",
     "quarters": [
       {
-        "name": "Apr-2023 to Jun-2023",
-        "papers": []
-      },
-      {
         "name": "Jan-2023 to Mar-2023",
         "papers": [
+          {
+            "name": "03-2023, 1-2 .pdf",
+            "url": "/Assests/2023/03-2023%2C%201-2%20.pdf"
+          },
+          {
+            "name": "03-2023, 1-3 .pdf",
+            "url": "/Assests/2023/03-2023%2C%201-3%20.pdf"
+          },
+          {
+            "name": "03-2023, 26-33.pdf",
+            "url": "/Assests/2023/03-2023%2C%2026-33.pdf"
+          },
+          {
+            "name": "03-2023, 34-35 .pdf",
+            "url": "/Assests/2023/03-2023%2C%2034-35%20.pdf"
+          },
+          {
+            "name": "03-2023, 4-10 .pdf",
+            "url": "/Assests/2023/03-2023%2C%204-10%20.pdf"
+          },
           {
             "name": "26-Article Text-71-1-4-20230223 v1.pdf",
             "url": "/Research_Papers/2023/Jan-2023%20to%20Mar-2023/26-Article%20Text-71-1-4-20230223%20v1.pdf"
@@ -117,6 +276,15 @@
         ]
       },
       {
+        "name": "Apr-2023 to Jun-2023",
+        "papers": [
+          {
+            "name": "06-2023, 8-16 .pdf",
+            "url": "/Assests/2023/06-2023%2C%208-16%20.pdf"
+          }
+        ]
+      },
+      {
         "name": "Jul-2023 to Sep-2023",
         "papers": []
       },
@@ -128,6 +296,69 @@
             "url": "/Research_Papers/2023/Oct-2023%20to%20Dec-2023/27-Article%20Text-93-1-11-20230225%20v1.pdf"
           }
         ]
+      }
+    ]
+  },
+  {
+    "year": "2024",
+    "quarters": [
+      {
+        "name": "Jan-2024 to Mar-2024",
+        "papers": []
+      },
+      {
+        "name": "Apr-2024 to Jun-2024",
+        "papers": []
+      },
+      {
+        "name": "Jul-2024 to Sep-2024",
+        "papers": []
+      },
+      {
+        "name": "Oct-2024 to Dec-2024",
+        "papers": []
+      }
+    ]
+  },
+  {
+    "year": "2025",
+    "quarters": [
+      {
+        "name": "Jan-2025 to Mar-2025",
+        "papers": []
+      },
+      {
+        "name": "Apr-2025 to Jun-2025",
+        "papers": []
+      },
+      {
+        "name": "Jul-2025 to Sep-2025",
+        "papers": []
+      },
+      {
+        "name": "Oct-2025 to Dec-2025",
+        "papers": []
+      }
+    ]
+  },
+  {
+    "year": "2026",
+    "quarters": [
+      {
+        "name": "Jan-2026 to Mar-2026",
+        "papers": []
+      },
+      {
+        "name": "Apr-2026 to Jun-2026",
+        "papers": []
+      },
+      {
+        "name": "Jul-2026 to Sep-2026",
+        "papers": []
+      },
+      {
+        "name": "Oct-2026 to Dec-2026",
+        "papers": []
       }
     ]
   }

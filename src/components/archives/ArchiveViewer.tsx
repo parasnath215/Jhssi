@@ -6,13 +6,13 @@ import { Folder, ArrowRight } from "lucide-react";
 import archivesData from "@/data/archives.json";
 import Link from "next/link";
 
-const ALL_YEARS = ["2022", "2023", "2024", "2025", "2026"];
+const ALL_YEARS = ["2019", "2020", "2021", "2022", "2023", "2024", "2025", "2026"];
 
-const DEFAULT_QUARTERS = [
-  "Jan to Mar",
-  "Apr to Jun",
-  "Jul to Sep",
-  "Oct to Dec"
+const ISSUES = [
+  { issueNumber: 1, baseQuarter: "Jan to Mar" },
+  { issueNumber: 2, baseQuarter: "Apr to Jun" },
+  { issueNumber: 3, baseQuarter: "Jul to Sep" },
+  { issueNumber: 4, baseQuarter: "Oct to Dec" }
 ];
 
 export default function ArchiveViewer() {
@@ -41,7 +41,7 @@ export default function ArchiveViewer() {
 
       {/* Quarters Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {DEFAULT_QUARTERS.map((baseQuarter) => {
+        {ISSUES.map(({ issueNumber, baseQuarter }) => {
           const quarterName = `${baseQuarter.split(' ')[0]}-${selectedYear} to ${baseQuarter.split(' ')[2]}-${selectedYear}`;
           const quarterData = currentYearData?.quarters?.find(q => q.name === quarterName);
           const paperCount = quarterData?.papers?.length || 0;
@@ -63,9 +63,12 @@ export default function ArchiveViewer() {
                   </div>
                   <div>
                     <h3 className="text-2xl font-serif font-bold text-[#3F2A1D] mb-1">
-                      {baseQuarter} {selectedYear}
+                      Issue {issueNumber}
                     </h3>
-                    <p className="text-[#6B4A2E] font-medium">
+                    <p className="text-[#6B4A2E] font-medium mb-1">
+                      {baseQuarter} {selectedYear}
+                    </p>
+                    <p className="text-[#6B4A2E] font-medium text-sm opacity-80">
                       {paperCount} {paperCount === 1 ? 'Published Paper' : 'Published Papers'}
                     </p>
                   </div>

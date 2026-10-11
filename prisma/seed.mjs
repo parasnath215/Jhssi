@@ -18,36 +18,68 @@ async function main() {
   // Admin (Editor-in-Chief)
   const admin = await prisma.user.create({
     data: {
-      name: 'Dr. Robert Evans (Editor-in-Chief)',
+      name: 'Prof. Ripu Sudan Singh (Editor-in-Chief)',
       email: 'admin@jhssi.com',
       password: passwordHash,
       role: 'ADMIN',
-      institution: 'JHSSI Editorial Directorate, London',
-      fieldOfStudy: 'Interdisciplinary Social Sciences & Editorial Management',
+      institution: 'Babasaheb Bhimrao Ambedkar University, Lucknow',
+      fieldOfStudy: 'Political Science & Editorial Operations',
     },
   });
 
-  // Reviewer 1
+  // Editorial Reviewers
   const reviewer1 = await prisma.user.create({
     data: {
-      name: 'Prof. Sarah Chen',
+      name: 'Prof Harish K. Thakur',
       email: 'reviewer@jhssi.com',
       password: passwordHash,
       role: 'REVIEWER',
-      institution: 'Oxford Institute of Social Studies',
-      fieldOfStudy: 'Social Sciences & Public Policy',
+      institution: 'Himachal Pradesh University, Shimla',
+      fieldOfStudy: 'Defence & Strategic Studies, Foreign Policy',
     },
   });
 
-  // Reviewer 2
   const reviewer2 = await prisma.user.create({
     data: {
-      name: 'Dr. Marcus Vance',
+      name: 'Prof Madhurendra Kumar',
       email: 'reviewer2@jhssi.com',
       password: passwordHash,
       role: 'REVIEWER',
-      institution: 'Stanford Center for Humanities',
-      fieldOfStudy: 'Philosophy, Ethics & Digital Culture',
+      institution: 'Kumaun University, Nainital',
+      fieldOfStudy: 'Political Science',
+    },
+  });
+
+  const reviewer3 = await prisma.user.create({
+    data: {
+      name: 'Dr. Siddhartha Mukerji',
+      email: 'siddharthamukerji@jhssi.com',
+      password: passwordHash,
+      role: 'REVIEWER',
+      institution: 'BBAU, Lucknow',
+      fieldOfStudy: 'Political Science & International Projects',
+    },
+  });
+
+  const reviewer4 = await prisma.user.create({
+    data: {
+      name: 'Prof Aswini Mohapatra',
+      email: 'aswinijnu@gmail.com',
+      password: passwordHash,
+      role: 'REVIEWER',
+      institution: 'JNU, New Delhi',
+      fieldOfStudy: 'International Studies & Public Policy',
+    },
+  });
+
+  const reviewer5 = await prisma.user.create({
+    data: {
+      name: 'Prof. Raghvendra Pratap Singh',
+      email: 'rpspolsc@gmail.com',
+      password: passwordHash,
+      role: 'REVIEWER',
+      institution: 'University of Lucknow',
+      fieldOfStudy: 'Political Science',
     },
   });
 

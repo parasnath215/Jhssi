@@ -204,7 +204,7 @@ export default function RegisterPage() {
               {/* Full Name */}
               <div>
                 <label className="block text-xs font-bold text-[#3F2A1D] uppercase tracking-wider mb-1">
-                  Full Scholarly Name *
+                  {formData.role === 'REVIEWER' ? 'Reviewer Name *' : 'Author Name *'}
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-[#6B4A2E]/60 absolute left-3.5 top-3 pointer-events-none" />
@@ -223,7 +223,7 @@ export default function RegisterPage() {
               {/* Email Address */}
               <div>
                 <label className="block text-xs font-bold text-[#3F2A1D] uppercase tracking-wider mb-1">
-                  Institutional / Scholarly Email *
+                  Email ID *
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-[#6B4A2E]/60 absolute left-3.5 top-3 pointer-events-none" />
@@ -233,7 +233,7 @@ export default function RegisterPage() {
                     value={formData.email}
                     onChange={handleChange}
                     className="w-full pl-10 pr-4 py-2 text-sm bg-white border border-[#E6DDCF] rounded-xl focus:ring-2 focus:ring-[#C8A45D] outline-hidden text-[#3F2A1D]"
-                    placeholder="jane.smith@university.edu"
+                    placeholder="e.g. author@jhssi.com"
                     required
                   />
                 </div>

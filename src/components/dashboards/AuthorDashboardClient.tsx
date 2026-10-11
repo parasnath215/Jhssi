@@ -202,11 +202,11 @@ export default function AuthorDashboardClient() {
       return;
     }
     if (!identifiedFileUrl) {
-      setFormError('Please upload Identified Manuscript (with author details).');
+      setFormError('Please upload Marked Manuscript.');
       return;
     }
     if (!anonymizedFileUrl) {
-      setFormError('Please upload Anonymized Blind Manuscript (without names).');
+      setFormError('Please upload Unmarked Manuscript (with detailed name and address of author).');
       return;
     }
 
@@ -360,7 +360,12 @@ export default function AuthorDashboardClient() {
                 {session?.user?.name || 'Author'}
               </span>
               <button
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={async () => {
+                  try {
+                    await signOut({ redirect: false, callbackUrl: '/' });
+                  } catch {}
+                  window.location.href = '/';
+                }}
                 title="Sign Out"
                 className="p-1.5 text-[#6B4A2E] hover:text-red-700 hover:bg-red-50 rounded-full transition"
               >
@@ -596,10 +601,10 @@ export default function AuthorDashboardClient() {
                       <div className="flex items-center gap-4 text-gray-500 pt-1">
                         <span>Files:</span>
                         <a href={paper.fileWithAuthor} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#6B4A2E]">
-                          Identified PDF
+                          Marked PDF
                         </a>
                         <a href={paper.fileWithoutAuthor} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#6B4A2E]">
-                          Blind (Anonymized) PDF
+                          Unmarked PDF
                         </a>
                       </div>
                     </div>
@@ -698,7 +703,7 @@ export default function AuthorDashboardClient() {
               <div className="p-3 bg-[#F6F1E8]/50 border border-[#E6DDCF] rounded-xl space-y-2.5">
                 <span className="font-bold text-[#3F2A1D] block">Required Dual Files (PDF, DOCX)</span>
 
-                {/* Identified file */}
+                {/* Marked file */}
                 <div>
                   <input
                     type="file"
@@ -708,8 +713,8 @@ export default function AuthorDashboardClient() {
                     onChange={e => e.target.files && handleFileUpload(e.target.files[0], 'identified', false)}
                   />
                   {identifiedFileUrl ? (
-                    <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-emerald-800">
-                      <span className="truncate">✓ Identified: {identifiedFileName}</span>
+                    <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800">
+                      <span className="truncate">✓ Marked Manuscript: {identifiedFileName}</span>
                       <button type="button" onClick={() => identifiedInputRef.current?.click()} className="underline font-bold ml-2">
                         Change
                       </button>
@@ -719,14 +724,14 @@ export default function AuthorDashboardClient() {
                       type="button"
                       disabled={uploadingIdentified}
                       onClick={() => identifiedInputRef.current?.click()}
-                      className="w-full py-2 border border-dashed border-[#6B4A2E]/60 bg-white rounded-lg text-center hover:bg-gray-50 transition"
+                      className="w-full py-2.5 px-3 border border-dashed border-[#6B4A2E]/60 bg-white rounded-xl text-center hover:bg-gray-50 transition font-medium text-[#3F2A1D]"
                     >
-                      {uploadingIdentified ? 'Uploading...' : '1. Upload Identified Manuscript (With Author Details)'}
+                      {uploadingIdentified ? 'Uploading...' : 'Upload Marked Manuscript'}
                     </button>
                   )}
                 </div>
 
-                {/* Anonymized file */}
+                {/* Unmarked file */}
                 <div>
                   <input
                     type="file"
@@ -736,8 +741,8 @@ export default function AuthorDashboardClient() {
                     onChange={e => e.target.files && handleFileUpload(e.target.files[0], 'anonymized', false)}
                   />
                   {anonymizedFileUrl ? (
-                    <div className="p-2 bg-emerald-50 border border-emerald-200 rounded-lg flex items-center justify-between text-emerald-800">
-                      <span className="truncate">✓ Blind: {anonymizedFileName}</span>
+                    <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between text-emerald-800">
+                      <span className="truncate">✓ Unmarked Manuscript: {anonymizedFileName}</span>
                       <button type="button" onClick={() => anonymizedInputRef.current?.click()} className="underline font-bold ml-2">
                         Change
                       </button>
@@ -747,9 +752,18 @@ export default function AuthorDashboardClient() {
                       type="button"
                       disabled={uploadingAnonymized}
                       onClick={() => anonymizedInputRef.current?.click()}
-                      className="w-full py-2 border border-dashed border-[#6B4A2E]/60 bg-white rounded-lg text-center hover:bg-gray-50 transition"
+                      className="w-full py-2.5 px-3 border border-dashed border-[#6B4A2E]/60 bg-white rounded-xl text-center hover:bg-gray-50 transition font-medium text-[#3F2A1D]"
                     >
-                      {uploadingAnonymized ? 'Uploading...' : '2. Upload Anonymized Blind Manuscript (No Names)'}
+                      {uploadingAnonymized ? (
+                        'Uploading...'
+                      ) : (
+                        <div>
+                          <span>Upload Unmarked Manuscript</span>
+                          <span className="block text-[11px] text-gray-500 font-normal mt-0.5">
+                            With detailed name and address of author
+                          </span>
+                        </div>
+                      )}
                     </button>
                   )}
                 </div>
@@ -830,7 +844,7 @@ export default function AuthorDashboardClient() {
                   onClick={() => revIdentifiedInputRef.current?.click()}
                   className="w-full py-2 border border-dashed border-gray-300 rounded-lg bg-[#FBF9F5] text-left px-3 text-gray-700 truncate"
                 >
-                  {revisedIdentifiedUrl ? `✓ Identified: ${revisedIdentifiedName}` : '+ Upload Updated Identified Manuscript'}
+                  {revisedIdentifiedUrl ? `✓ Marked: ${revisedIdentifiedName}` : '+ Upload Updated Marked Manuscript'}
                 </button>
               </div>
 
@@ -847,7 +861,7 @@ export default function AuthorDashboardClient() {
                   onClick={() => revAnonymizedInputRef.current?.click()}
                   className="w-full py-2 border border-dashed border-gray-300 rounded-lg bg-[#FBF9F5] text-left px-3 text-gray-700 truncate"
                 >
-                  {revisedAnonymizedUrl ? `✓ Blind: ${revisedAnonymizedName}` : '+ Upload Updated Anonymized Manuscript'}
+                  {revisedAnonymizedUrl ? `✓ Unmarked: ${revisedAnonymizedName}` : '+ Upload Updated Unmarked Manuscript'}
                 </button>
               </div>
 

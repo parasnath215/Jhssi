@@ -34,14 +34,14 @@ export async function POST(request: NextRequest) {
 
     if (!fileWithAuthor) {
       return NextResponse.json(
-        { error: 'Identified Manuscript (with author names) is required.' },
+        { error: 'Marked Manuscript is required.' },
         { status: 400 }
       );
     }
 
     if (!fileWithoutAuthor) {
       return NextResponse.json(
-        { error: 'Anonymized Blind Manuscript (without author names) is required.' },
+        { error: 'Unmarked Manuscript (with detailed name and address of author) is required.' },
         { status: 400 }
       );
     }

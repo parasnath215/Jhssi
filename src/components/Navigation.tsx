@@ -256,7 +256,12 @@ export default function Navigation() {
                 </Link>
 
                 <button
-                  onClick={() => signOut({ callbackUrl: "/" })}
+                  onClick={async () => {
+                    try {
+                      await signOut({ redirect: false, callbackUrl: "/" });
+                    } catch {}
+                    window.location.href = "/";
+                  }}
                   title="Sign Out"
                   className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-full transition"
                 >
@@ -394,9 +399,12 @@ export default function Navigation() {
         <div className="p-4 border-t border-[#E6DDCF]">
           {session?.user ? (
             <button
-              onClick={() => {
+              onClick={async () => {
                 closeMobileMenu();
-                signOut({ callbackUrl: "/" });
+                try {
+                  await signOut({ redirect: false, callbackUrl: "/" });
+                } catch {}
+                window.location.href = "/";
               }}
               className="w-full py-2.5 bg-red-50 text-red-700 text-xs font-bold rounded-xl border border-red-200 text-center"
             >

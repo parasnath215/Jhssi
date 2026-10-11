@@ -32,36 +32,103 @@ async function main() {
     where: { email: 'admin@jhssi.com' },
     update: {
       role: 'ADMIN',
-      name: 'Dr. Robert Evans (Editor-in-Chief)',
-      institution: 'JHSSI Editorial Directorate, London',
+      name: 'Prof. Ripu Sudan Singh (Editor-in-Chief)',
+      institution: 'Babasaheb Bhimrao Ambedkar University, Lucknow',
+      fieldOfStudy: 'Political Science & Editorial Management',
     },
     create: {
       email: 'admin@jhssi.com',
-      name: 'Dr. Robert Evans (Editor-in-Chief)',
+      name: 'Prof. Ripu Sudan Singh (Editor-in-Chief)',
       password: defaultPassword,
       role: 'ADMIN',
-      institution: 'JHSSI Editorial Directorate, London',
-      fieldOfStudy: 'Interdisciplinary Social Sciences & Editorial Management',
+      institution: 'Babasaheb Bhimrao Ambedkar University, Lucknow',
+      fieldOfStudy: 'Political Science & Editorial Management',
     },
   });
 
-  // 3. Reviewer Account
-  const reviewer = await prisma.user.upsert({
-    where: { email: 'reviewer@jhssi.com' },
-    update: {
-      role: 'REVIEWER',
-      name: 'Prof. Sarah Chen',
-      institution: 'Oxford Institute of Social Studies',
-    },
-    create: {
+  // 3. Editorial Board & Peer Reviewers
+  const editorialReviewers = [
+    {
+      name: 'Prof Harish K. Thakur',
       email: 'reviewer@jhssi.com',
-      name: 'Prof. Sarah Chen',
-      password: defaultPassword,
-      role: 'REVIEWER',
-      institution: 'Oxford Institute of Social Studies',
-      fieldOfStudy: 'Social Sciences & Public Policy',
+      institution: 'Himachal Pradesh University, Shimla',
+      fieldOfStudy: 'Defence & Strategic Studies, Foreign Policy',
     },
-  });
+    {
+      name: 'Prof Madhurendra Kumar',
+      email: 'professormadhurendra@gmail.com',
+      institution: 'Kumaun University, Nainital',
+      fieldOfStudy: 'Political Science',
+    },
+    {
+      name: 'Dr. Siddhartha Mukerji',
+      email: 'siddharthamukerji@jhssi.com',
+      institution: 'BBAU, Lucknow',
+      fieldOfStudy: 'Political Science & International Projects',
+    },
+    {
+      name: 'Prof Aswini Mohapatra',
+      email: 'aswinijnu@gmail.com',
+      institution: 'JNU, New Delhi',
+      fieldOfStudy: 'International Studies & Public Policy',
+    },
+    {
+      name: 'Prof. Raghvendra Pratap Singh',
+      email: 'rpspolsc@gmail.com',
+      institution: 'University of Lucknow',
+      fieldOfStudy: 'Political Science',
+    },
+    {
+      name: 'Dr. Anja Mihr',
+      email: 'amihr@governance-platform.org',
+      institution: 'OSCE Academy, Kyrgyzstan',
+      fieldOfStudy: 'Human Rights & Governance',
+    },
+    {
+      name: 'Dr. Sherko Krimanj',
+      email: 'skirmanj@gmail.com',
+      institution: 'Ulster University, UK / Koya University, Iraq',
+      fieldOfStudy: 'Middle East Studies & International Relations',
+    },
+    {
+      name: 'Oscar Perez de la Fuenta',
+      email: 'oscar@der-pu.uc3m.es',
+      institution: 'Carlos III University, Madrid',
+      fieldOfStudy: 'Philosophy of Law & Politics',
+    },
+    {
+      name: 'Alexander Sungurov',
+      email: 'asungurov@mail.ru',
+      institution: 'Higher School of Economics, Russia',
+      fieldOfStudy: 'Public Policy & Human Rights',
+    },
+    {
+      name: 'Achal Darbari',
+      email: 'achal.darbari@gmail.com',
+      institution: 'Investment Banker, Pune',
+      fieldOfStudy: 'Economics & Corporate Strategy',
+    },
+  ];
+
+  for (const rev of editorialReviewers) {
+    await prisma.user.upsert({
+      where: { email: rev.email },
+      update: {
+        role: 'REVIEWER',
+        name: rev.name,
+        institution: rev.institution,
+        fieldOfStudy: rev.fieldOfStudy,
+      },
+      create: {
+        email: rev.email,
+        name: rev.name,
+        password: defaultPassword,
+        role: 'REVIEWER',
+        institution: rev.institution,
+        fieldOfStudy: rev.fieldOfStudy,
+      },
+    });
+  }
 
   // 4. Author Account
   const author = await prisma.user.upsert({
@@ -84,7 +151,7 @@ async function main() {
   console.log('User Accounts verified:', {
     superadmin: superAdmin.email,
     admin: admin.email,
-    reviewer: reviewer.email,
+    reviewersCount: editorialReviewers.length,
     author: author.email,
   });
 

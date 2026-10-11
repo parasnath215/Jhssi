@@ -419,7 +419,12 @@ export default function SuperAdminDashboardClient() {
             </button>
 
             <button
-              onClick={() => signOut({ callbackUrl: '/login' })}
+              onClick={async () => {
+                try {
+                  await signOut({ redirect: false, callbackUrl: '/' });
+                } catch {}
+                window.location.href = '/';
+              }}
               className="p-2 text-gray-500 hover:text-red-700 hover:bg-red-50 rounded-xl transition"
               title="Sign Out"
             >

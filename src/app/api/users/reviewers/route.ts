@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const reviewers = await prisma.user.findMany({
       where: {
-        role: { in: ['REVIEWER', 'ADMIN'] },
+        role: 'REVIEWER',
       },
       select: {
         id: true,

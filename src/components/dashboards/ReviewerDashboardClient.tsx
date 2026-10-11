@@ -210,7 +210,12 @@ export default function ReviewerDashboardClient() {
               {session?.user?.name || 'Reviewer'}
             </span>
             <button
-              onClick={() => signOut({ callbackUrl: '/' })}
+              onClick={async () => {
+                try {
+                  await signOut({ redirect: false, callbackUrl: '/' });
+                } catch {}
+                window.location.href = '/';
+              }}
               title="Sign Out"
               className="p-1.5 text-[#6B4A2E] hover:text-red-700 hover:bg-red-50 rounded-full transition"
             >

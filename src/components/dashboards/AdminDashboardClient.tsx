@@ -132,6 +132,15 @@ export default function AdminDashboardClient() {
   const [copiedDoiId, setCopiedDoiId] = useState<string | null>(null);
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
+  const handleLogout = async () => {
+    try {
+      await signOut({ redirect: false, callbackUrl: '/' });
+    } catch {
+      // fallback
+    }
+    window.location.href = '/';
+  };
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -403,10 +412,10 @@ export default function AdminDashboardClient() {
 
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-[#3F2A1D] hidden sm:inline">
-                {session?.user?.name || 'Editor-in-Chief'}
+                {session?.user?.name || 'Prof. Ripu Sudan Singh (Editor-in-Chief)'}
               </span>
               <button
-                onClick={() => signOut({ callbackUrl: '/' })}
+                onClick={handleLogout}
                 title="Sign Out"
                 className="p-1.5 text-[#6B4A2E] hover:text-red-700 hover:bg-red-50 rounded-full transition"
               >

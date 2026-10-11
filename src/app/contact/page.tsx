@@ -9,6 +9,16 @@ import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import Icon from "@/components/Icons";
 
+interface ContactDetail {
+  type: string;
+  name: string;
+  address: string | null;
+  website?: string | null;
+  email: string | null;
+  phone?: string | null;
+  icon: React.ReactNode;
+}
+
 export default function PublisherContactPage() {
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -16,27 +26,32 @@ export default function PublisherContactPage() {
     setIsLoaded(true);
   }, []);
 
-  const contactDetails = [
+  const contactDetails: ContactDetail[] = [
     {
-      type: "Publisher",
-      name: "Professor Ripu Sudan Singh",
-      address: "C-77, Raibareilly Road, South City, Lucknow-226025, Uttar Pradesh, India",
+      type: "Society & Publisher",
+      name: "Society for Global Enlightenment and Development",
+      address: "C-77, South City, Raibareli Road, Lucknow",
+      website: "https://sfged.org/",
       email: "journalofhssi@gmail.com",
+      phone: null,
       icon: <Icon name="acknowledgement" className="w-40 h-40" />
     },
     {
       type: "Principal Contact",
       name: "Journal of Humanities and Social Sciences Invention",
       address: null,
+      website: null,
       email: "editorjhssi@gmail.com",
+      phone: null,
       icon: <Icon name="references" className="w-40 h-40" />
     },
     {
-      type: "Support Contact",
-      name: "Susheel Kumar",
+      type: "Technical Support",
+      name: "Amit Verma",
       address: null,
-      email: "info@mripub.com",
-      phone: "+91 9696263646",
+      website: null,
+      email: "supportjhssi@gmail.com",
+      phone: null,
       icon: <Icon name="materials" className="w-40 h-40" />
     }
   ];
@@ -193,6 +208,20 @@ export default function PublisherContactPage() {
                         <p className="text-[#4A4036]">{contact.address}</p>
                       </div>
                     )}
+
+                    {contact.website && (
+                      <div>
+                        <h4 className="font-semibold text-[#3F2A1D] mb-2">Website</h4>
+                        <a
+                          href={contact.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#6B4A2E] hover:text-[#C8A45D] transition-colors underline break-all font-medium"
+                        >
+                          {contact.website}
+                        </a>
+                      </div>
+                    )}
                     
                     {contact.email && (
                       <div>
@@ -293,10 +322,10 @@ export default function PublisherContactPage() {
                   Email Editorial Team
                 </Link>
                 <Link
-                  href="mailto:info@mripub.com"
+                  href="mailto:supportjhssi@gmail.com"
                   className="px-10 py-4 border-2 border-[#6B4A2E] text-[#6B4A2E] font-semibold rounded-full hover:bg-[#6B4A2E]/10 transition-colors text-lg"
                 >
-                  Email Support Team
+                  Email Technical Support
                 </Link>
               </div>
             </div>

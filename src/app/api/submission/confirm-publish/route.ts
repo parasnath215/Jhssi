@@ -36,11 +36,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Submission not found' }, { status: 404 });
     }
 
+    const { sendAuthorNotification, generateManuscriptNo } = await import('@/lib/notifications');
+    let manuscriptNo = submission.manuscriptNo;
+    if (!manuscriptNo) {
+      manuscriptNo = await generateManuscriptNo();
+    }
+
     if (action === 'REJECT') {
       const updated = await prisma.submission.update({
         where: { id: submissionId },
-        data: { status: 'REJECTED' },
+        data: {
+          status: 'REJECTED',
+          manuscriptNo,
+        },
+        include: { author: true },
       });
+
+      try {
+        await sendAuthorNotification('REJECTED', {
+          title: submission.title,
+          authorName: submission.author.name,
+          authorEmail: submission.author.email,
+          manuscriptNo: updated.manuscriptNo || manuscriptNo,
+          comments: body.comments || 'Manuscript rejected by editorial decision.',
+          submissionId: submission.id,
+        });
+      } catch (err) {
+        console.error('Non-blocking: Failed to dispatch rejection notification:', err);
+      }
+
       return NextResponse.json({
         message: 'Manuscript has been rejected by editorial decision.',
         submission: updated,
@@ -59,6 +83,7 @@ export async function POST(request: NextRequest) {
         issue: issue || '1',
         pages: pages || '1-24',
         publishedAt: new Date(),
+        manuscriptNo,
       },
       include: {
         author: {
@@ -71,6 +96,21 @@ export async function POST(request: NextRequest) {
         },
       },
     });
+
+    try {
+      await sendAuthorNotification('PUBLISHED', {
+        title: publishedSubmission.title,
+        authorName: publishedSubmission.author.name,
+        authorEmail: publishedSubmission.author.email,
+        manuscriptNo: publishedSubmission.manuscriptNo || manuscriptNo,
+        doi: autoDoi,
+        volume: volume || '6',
+        issue: issue || '1',
+        submissionId: publishedSubmission.id,
+      });
+    } catch (err) {
+      console.error('Non-blocking: Failed to dispatch publication notification:', err);
+    }
 
     return NextResponse.json({
       message: 'Manuscript approved and officially published to JHSSI Journal!',

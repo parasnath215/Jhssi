@@ -26,8 +26,10 @@ import {
   Trash2,
   ChevronDown,
   ChevronUp,
-  Copy
+  Copy,
+  Mail
 } from 'lucide-react';
+import AdminEmailSettingsTab from '@/components/dashboards/AdminEmailSettingsTab';
 
 interface Reviewer {
   id: string;
@@ -65,6 +67,7 @@ interface AdminSubmission {
   fileWithoutAuthor: string;
   status: string;
   version: number;
+  manuscriptNo?: string;
   createdAt: string;
   updatedAt: string;
   doi?: string;
@@ -92,7 +95,7 @@ export default function AdminDashboardClient() {
   const [submissions, setSubmissions] = useState<AdminSubmission[]>([]);
   const [reviewers, setReviewers] = useState<Reviewer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CONFIRMATION' | 'PUBLISHED' | 'ALL'>('PIPELINE');
+  const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CONFIRMATION' | 'PUBLISHED' | 'ALL' | 'EMAIL_SETUP'>('PIPELINE');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
@@ -362,7 +365,8 @@ export default function AdminDashboardClient() {
     return list.filter(s =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       s.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.doi && s.doi.toLowerCase().includes(searchQuery.toLowerCase()))
+      (s.doi && s.doi.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (s.manuscriptNo && s.manuscriptNo.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   })();
 
@@ -503,23 +507,39 @@ export default function AdminDashboardClient() {
             >
               All ({submissions.length})
             </button>
+
+            <button
+              onClick={() => setActiveTab('EMAIL_SETUP')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'EMAIL_SETUP'
+                  ? 'bg-[#6B4A2E] text-white shadow-xs'
+                  : 'text-[#6B4A2E] hover:text-[#3F2A1D]'
+              }`}
+            >
+              <Mail className="w-3.5 h-3.5" />
+              <span>Email & Manuscript Setup</span>
+            </button>
           </div>
 
           {/* Search Box */}
-          <div className="relative w-full sm:w-64">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[#6B4A2E]/60" />
-            <input
-              type="text"
-              placeholder="Search title, author, DOI..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#E6DDCF] rounded-xl focus:ring-1 focus:ring-[#C8A45D] focus:outline-hidden"
-            />
-          </div>
+          {activeTab !== 'EMAIL_SETUP' && (
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[#6B4A2E]/60" />
+              <input
+                type="text"
+                placeholder="Search title, author, manuscript no, DOI..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-[#E6DDCF] rounded-xl focus:ring-1 focus:ring-[#C8A45D] focus:outline-hidden"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Papers List */}
-        {loading ? (
+        {/* Papers List or Email Setup */}
+        {activeTab === 'EMAIL_SETUP' ? (
+          <AdminEmailSettingsTab />
+        ) : loading ? (
           <div className="p-12 text-center text-xs text-[#6B4A2E] bg-white rounded-2xl border border-[#E6DDCF]">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#C8A45D]" />
             Loading editorial database...
@@ -567,6 +587,13 @@ export default function AdminDashboardClient() {
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border ${badge.color}`}>
                           {badge.label}
                         </span>
+
+                        {paper.manuscriptNo && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F6F1E8] text-[#6B4A2E] border border-[#C8A45D]/40">
+                            <FileText className="w-3 h-3 text-[#C8A45D]" />
+                            {paper.manuscriptNo}
+                          </span>
+                        )}
 
                         <span className="text-[11px] text-gray-600 font-medium">
                           Author: <strong>{paper.author.name}</strong>
@@ -662,7 +689,10 @@ export default function AdminDashboardClient() {
                       </div>
 
                       {/* Author Details */}
-                      <div className="flex flex-wrap gap-4 text-gray-600 bg-white p-2.5 rounded-xl border border-gray-200">
+                      <div className="flex flex-wrap items-center gap-4 text-gray-600 bg-white p-2.5 rounded-xl border border-gray-200">
+                        {paper.manuscriptNo && (
+                          <span><strong>Manuscript No:</strong> <span className="font-mono text-[#6B4A2E] font-bold">{paper.manuscriptNo}</span></span>
+                        )}
                         <span><strong>Author Email:</strong> {paper.author.email}</span>
                         {paper.author.institution && <span><strong>Institution:</strong> {paper.author.institution}</span>}
                         {paper.category && <span><strong>Category:</strong> {paper.category}</span>}

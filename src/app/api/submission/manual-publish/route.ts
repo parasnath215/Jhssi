@@ -3,6 +3,7 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
+import { generateManuscriptNo, sendAuthorNotification } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,6 +88,8 @@ export async function POST(request: NextRequest) {
       ? doi.trim()
       : `10.32456/jhssi.${year}.${vol}.${iss}.${Math.floor(100 + Math.random() * 900)}`;
 
+    const manuscriptNo = await generateManuscriptNo();
+
     // Directly create the paper with PUBLISHED status and the selected date
     const submission = await prisma.submission.create({
       data: {
@@ -99,6 +102,7 @@ export async function POST(request: NextRequest) {
         status: 'PUBLISHED',
         version: 1,
         authorId: author.id,
+        manuscriptNo,
         volume: vol,
         issue: iss,
         pages: pages || '1-20',
@@ -118,9 +122,27 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    if (authorEmail && authorEmail.includes('@') && !authorEmail.endsWith('@jhssi.com')) {
+      try {
+        await sendAuthorNotification('PUBLISHED', {
+          title: submission.title,
+          authorName: submission.author.name,
+          authorEmail: submission.author.email,
+          manuscriptNo,
+          doi: computedDoi,
+          volume: vol,
+          issue: iss,
+          submissionId: submission.id,
+        });
+      } catch (err) {
+        console.error('Non-blocking: Failed to dispatch manual publish notification:', err);
+      }
+    }
+
     return NextResponse.json({
-      message: 'Research paper successfully published to JHSSI Journal on the selected date.',
+      message: `Research paper successfully published to JHSSI Journal. Assigned Manuscript No: ${manuscriptNo}.`,
       submission,
+      manuscriptNo,
     }, { status: 201 });
   } catch (error) {
     console.error('Manual publication error:', error);

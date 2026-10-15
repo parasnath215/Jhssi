@@ -53,6 +53,7 @@ model Submission {
   
   status             String    @default("PENDING") // PENDING, UNDER_REVIEW, REVISION_REQUESTED, RESUBMITTED, REVIEWER_APPROVED, PUBLISHED, REJECTED
   version            Int       @default(1)
+  manuscriptNo       String?   @unique // e.g. "JHSSI-26-0001"
 
   // Submitting Author
   authorId           String
@@ -79,6 +80,7 @@ model Submission {
   @@index([authorId])
   @@index([assignedReviewerId])
   @@index([status])
+  @@index([manuscriptNo])
   @@map("submissions")
 }
 
@@ -264,3 +266,27 @@ model SystemSetting {
 
   @@map("system_settings")
 }
+
+// ============================================
+// EMAIL NOTIFICATIONS & DISPATCH LOGS
+// ============================================
+
+model EmailLog {
+  id            String   @id @default(uuid())
+  recipient     String
+  recipientName String?
+  subject       String
+  body          String
+  templateType  String   // "SUBMISSION_CONFIRMATION", "REVISION_REQUESTED", "REJECTED", "PUBLISHED", "TEST"
+  manuscriptNo  String?
+  submissionId  String?
+  status        String   @default("SENT") // "SENT", "MOCK_SENT", "FAILED"
+  errorMessage  String?
+  createdAt     DateTime @default(now())
+
+  @@index([recipient])
+  @@index([manuscriptNo])
+  @@index([createdAt])
+  @@map("email_logs")
+}
+

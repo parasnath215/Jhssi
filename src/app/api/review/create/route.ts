@@ -42,6 +42,9 @@ export async function POST(request: NextRequest) {
     // Verify submission is assigned to this reviewer or user is admin
     const submission = await prisma.submission.findUnique({
       where: { id: submissionId },
+      include: {
+        author: true,
+      },
     });
 
     if (!submission) {
@@ -92,7 +95,28 @@ export async function POST(request: NextRequest) {
       data: {
         status: newStatus,
       },
+      include: {
+        author: true,
+      },
     });
+
+    // Send email to author if update/revision is required
+    if (newStatus === 'REVISION_REQUESTED') {
+      try {
+        const { sendAuthorNotification } = await import('@/lib/notifications');
+        await sendAuthorNotification('REVISION_REQUESTED', {
+          title: submission.title,
+          authorName: submission.author.name,
+          authorEmail: submission.author.email,
+          manuscriptNo: submission.manuscriptNo || 'JHSSI-Pending',
+          articleType: submission.category || 'Research Article',
+          comments: commentsForAuthor,
+          submissionId: submission.id,
+        });
+      } catch (notifyErr) {
+        console.error('Non-blocking: Failed to dispatch review notification to author:', notifyErr);
+      }
+    }
 
     return NextResponse.json({
       message: statusMessage,

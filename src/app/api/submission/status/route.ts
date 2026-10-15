@@ -30,10 +30,72 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const existing = await prisma.submission.findUnique({
+      where: { id: submissionId },
+      include: {
+        author: true,
+      },
+    });
+
+    if (!existing) {
+      return NextResponse.json({ error: 'Manuscript not found' }, { status: 404 });
+    }
+
+    // Ensure manuscriptNo exists
+    let manuscriptNo = existing.manuscriptNo;
+    if (!manuscriptNo) {
+      const { generateManuscriptNo } = await import('@/lib/notifications');
+      manuscriptNo = await generateManuscriptNo();
+    }
+
     const submission = await prisma.submission.update({
       where: { id: submissionId },
-      data: { status },
+      data: {
+        status,
+        manuscriptNo,
+      },
+      include: {
+        author: true,
+      },
     });
+
+    // Send corresponding author notification
+    const { sendAuthorNotification } = await import('@/lib/notifications');
+    try {
+      if (status === 'REVISION_REQUESTED') {
+        await sendAuthorNotification('REVISION_REQUESTED', {
+          title: submission.title,
+          authorName: submission.author.name,
+          authorEmail: submission.author.email,
+          manuscriptNo: submission.manuscriptNo || 'JHSSI-Pending',
+          articleType: submission.category || 'Research Article',
+          comments: body.comments || 'Editorial board has requested revisions for your manuscript.',
+          submissionId: submission.id,
+        });
+      } else if (status === 'REJECTED') {
+        await sendAuthorNotification('REJECTED', {
+          title: submission.title,
+          authorName: submission.author.name,
+          authorEmail: submission.author.email,
+          manuscriptNo: submission.manuscriptNo || 'JHSSI-Pending',
+          comments: body.comments || 'Manuscript does not meet current publication criteria.',
+          submissionId: submission.id,
+        });
+      } else if (status === 'PUBLISHED') {
+        await sendAuthorNotification('PUBLISHED', {
+          title: submission.title,
+          authorName: submission.author.name,
+          authorEmail: submission.author.email,
+          manuscriptNo: submission.manuscriptNo || 'JHSSI-Pending',
+          doi: submission.doi || undefined,
+          volume: submission.volume || undefined,
+          issue: submission.issue || undefined,
+          submissionId: submission.id,
+        });
+      }
+    } catch (notifyErr) {
+      console.error('Non-blocking: Failed to dispatch status notification:', notifyErr);
+    }
 
     return NextResponse.json({
       message: `Manuscript status updated to ${status}`,

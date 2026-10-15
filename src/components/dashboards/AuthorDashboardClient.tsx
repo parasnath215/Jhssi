@@ -64,6 +64,7 @@ interface Submission {
   fileWithoutAuthor: string;
   status: string;
   version: number;
+  manuscriptNo?: string;
   createdAt: string;
   updatedAt: string;
   doi?: string;
@@ -246,7 +247,7 @@ export default function AuthorDashboardClient() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Submission failed');
 
-      setFormSuccess('Paper submitted successfully!');
+      setFormSuccess(`Paper submitted successfully! Assigned Manuscript No: ${data.manuscriptNo || 'JHSSI-Generated'}`);
       setTimeout(() => {
         setIsSubmitModalOpen(false);
         setNewTitle('');
@@ -258,7 +259,7 @@ export default function AuthorDashboardClient() {
         setAnonymizedFileName('');
         setFormSuccess('');
         fetchSubmissions();
-      }, 1200);
+      }, 2500);
     } catch (err: any) {
       setFormError(err.message || 'Failed to submit manuscript');
     } finally {
@@ -415,7 +416,8 @@ export default function AuthorDashboardClient() {
     if (!searchQuery.trim()) return list;
     return list.filter(s =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase()))
+      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (s.manuscriptNo && s.manuscriptNo.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   })();
 
@@ -796,6 +798,12 @@ export default function AuthorDashboardClient() {
                             <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border ${badge.color}`}>
                               {badge.label}
                             </span>
+                            {paper.manuscriptNo && (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F6F1E8] text-[#6B4A2E] border border-[#C8A45D]/40">
+                                <FileText className="w-3 h-3 text-[#C8A45D]" />
+                                {paper.manuscriptNo}
+                              </span>
+                            )}
                             <span className="text-[11px] text-gray-500 font-semibold bg-[#F6F1E8] px-2 py-0.5 rounded-md">
                               v{paper.version}
                             </span>
@@ -857,6 +865,14 @@ export default function AuthorDashboardClient() {
                       {/* Expandable Details Drawer */}
                       {isExpanded && (
                         <div className="px-5 pb-5 pt-3 border-t border-[#E6DDCF]/60 bg-[#FAF7F2]/60 rounded-b-2xl space-y-3 text-xs">
+                          <div className="flex flex-wrap items-center gap-4 bg-white p-2.5 rounded-xl border border-gray-200">
+                            {paper.manuscriptNo && (
+                              <span><strong>Manuscript No:</strong> <span className="font-mono text-[#6B4A2E] font-bold">{paper.manuscriptNo}</span></span>
+                            )}
+                            {paper.category && <span><strong>Category:</strong> {paper.category}</span>}
+                            <span><strong>Submission Date:</strong> {new Date(paper.createdAt).toLocaleDateString()}</span>
+                          </div>
+
                           <div>
                             <span className="font-bold text-[#3F2A1D] block mb-1">Abstract:</span>
                             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{paper.abstract}</p>

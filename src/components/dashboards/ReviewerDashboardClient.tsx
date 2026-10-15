@@ -54,6 +54,7 @@ interface AssignedSubmission {
   fileWithoutAuthor: string; // Strictly blind copy
   status: string;
   version: number;
+  manuscriptNo?: string;
   createdAt: string;
   updatedAt: string;
   reviews: Review[];
@@ -183,7 +184,8 @@ export default function ReviewerDashboardClient() {
     if (!searchQuery.trim()) return list;
     return list.filter(s =>
       s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase()))
+      (s.category && s.category.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (s.manuscriptNo && s.manuscriptNo.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   })();
 
@@ -332,6 +334,12 @@ export default function ReviewerDashboardClient() {
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs border ${badge.color}`}>
                           {badge.label}
                         </span>
+                        {paper.manuscriptNo && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-[#F6F1E8] text-[#6B4A2E] border border-[#C8A45D]/40">
+                            <FileText className="w-3 h-3 text-[#C8A45D]" />
+                            {paper.manuscriptNo}
+                          </span>
+                        )}
                         <span className="text-[11px] text-gray-500 font-medium">v{paper.version}</span>
                         {paper.category && (
                           <span className="text-[11px] text-gray-400">• {paper.category}</span>

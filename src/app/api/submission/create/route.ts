@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/authOptions';
 import { prisma } from '@/lib/prisma';
+import { generateManuscriptNo, sendAuthorNotification } from '@/lib/notifications';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +47,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate unique sequential academic manuscript number (e.g. JHSSI-26-0001)
+    const manuscriptNo = await generateManuscriptNo();
+
     const submission = await prisma.submission.create({
       data: {
         title: title.trim(),
@@ -57,6 +61,7 @@ export async function POST(request: NextRequest) {
         authorId: session.user.id,
         status: 'PENDING',
         version: 1,
+        manuscriptNo,
       },
       include: {
         author: {
@@ -70,9 +75,25 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Send automated email to the author with the official template
+    try {
+      await sendAuthorNotification('SUBMISSION_CONFIRMATION', {
+        title: submission.title,
+        authorName: submission.author.name,
+        authorEmail: submission.author.email,
+        username: session.user.email || submission.author.email,
+        articleType: submission.category || 'Research Article',
+        manuscriptNo: submission.manuscriptNo || manuscriptNo,
+        submissionId: submission.id,
+      });
+    } catch (emailErr) {
+      console.error('Non-blocking: Failed to dispatch submission confirmation email:', emailErr);
+    }
+
     return NextResponse.json({
-      message: 'Research paper submitted successfully. It will now be assigned for double-blind peer review.',
+      message: `Research paper submitted successfully. Assigned Manuscript No: ${manuscriptNo}. It will now be assigned for double-blind peer review.`,
       submission,
+      manuscriptNo,
     }, { status: 201 });
   } catch (error) {
     console.error('Submission creation error:', error);

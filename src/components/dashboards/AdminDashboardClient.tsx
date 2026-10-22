@@ -75,7 +75,7 @@ interface AdminSubmission {
   issue?: string;
   pages?: string;
   publishedAt?: string;
-  author: {
+  author?: {
     id: string;
     name: string;
     email: string;
@@ -95,6 +95,7 @@ export default function AdminDashboardClient() {
   const [submissions, setSubmissions] = useState<AdminSubmission[]>([]);
   const [reviewers, setReviewers] = useState<Reviewer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CONFIRMATION' | 'PUBLISHED' | 'ALL' | 'EMAIL_SETUP'>('PIPELINE');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -151,6 +152,7 @@ export default function AdminDashboardClient() {
   const fetchData = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const [subsRes, revsRes] = await Promise.all([
         fetch('/api/submission/all'),
         fetch('/api/users/reviewers'),
@@ -158,10 +160,15 @@ export default function AdminDashboardClient() {
       const subsData = await subsRes.json();
       const revsData = await revsRes.json();
 
+      if (!subsRes.ok) {
+        throw new Error(subsData.error || 'Failed to fetch editorial manuscripts');
+      }
+
       if (subsData.submissions) setSubmissions(subsData.submissions);
       if (revsData.reviewers) setReviewers(revsData.reviewers);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching admin data:', err);
+      setFetchError(err.message || 'Error loading manuscripts');
     } finally {
       setLoading(false);
     }
@@ -362,11 +369,13 @@ export default function AdminDashboardClient() {
     else if (activeTab === 'PUBLISHED') list = publishedSubmissions;
 
     if (!searchQuery.trim()) return list;
+    const q = searchQuery.toLowerCase();
     return list.filter(s =>
-      s.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      s.author.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (s.doi && s.doi.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (s.manuscriptNo && s.manuscriptNo.toLowerCase().includes(searchQuery.toLowerCase()))
+      s.title?.toLowerCase().includes(q) ||
+      s.author?.name?.toLowerCase().includes(q) ||
+      s.author?.email?.toLowerCase().includes(q) ||
+      (s.doi && s.doi.toLowerCase().includes(q)) ||
+      (s.manuscriptNo && s.manuscriptNo.toLowerCase().includes(q))
     );
   })();
 
@@ -536,6 +545,22 @@ export default function AdminDashboardClient() {
           )}
         </div>
 
+        {/* Fetch Error Banner */}
+        {fetchError && (
+          <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between text-xs text-red-800">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
+              <span>{fetchError}</span>
+            </div>
+            <button
+              onClick={fetchData}
+              className="px-3 py-1 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition"
+            >
+              Retry
+            </button>
+          </div>
+        )}
+
         {/* Papers List or Email Setup */}
         {activeTab === 'EMAIL_SETUP' ? (
           <AdminEmailSettingsTab />
@@ -596,7 +621,7 @@ export default function AdminDashboardClient() {
                         )}
 
                         <span className="text-[11px] text-gray-600 font-medium">
-                          Author: <strong>{paper.author.name}</strong>
+                          Author: <strong>{paper.author?.name || 'Unknown Author'}</strong>
                         </span>
 
                         {isPublished && paper.publishedAt && (
@@ -652,15 +677,17 @@ export default function AdminDashboardClient() {
                         </button>
                       )}
 
-                      <a
-                        href={paper.fileWithAuthor}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 text-gray-500 hover:text-[#6B4A2E] hover:bg-[#F6F1E8] rounded-lg transition"
-                        title="Download Full PDF"
-                      >
-                        <Download className="w-4 h-4" />
-                      </a>
+                      {paper.fileWithAuthor && (
+                        <a
+                          href={paper.fileWithAuthor}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-1.5 text-gray-500 hover:text-[#6B4A2E] hover:bg-[#F6F1E8] rounded-lg transition"
+                          title="Download Full PDF"
+                        >
+                          <Download className="w-4 h-4" />
+                        </a>
+                      )}
 
                       <button
                         onClick={() => handleDeletePaper(paper.id, paper.title)}
@@ -693,9 +720,45 @@ export default function AdminDashboardClient() {
                         {paper.manuscriptNo && (
                           <span><strong>Manuscript No:</strong> <span className="font-mono text-[#6B4A2E] font-bold">{paper.manuscriptNo}</span></span>
                         )}
-                        <span><strong>Author Email:</strong> {paper.author.email}</span>
-                        {paper.author.institution && <span><strong>Institution:</strong> {paper.author.institution}</span>}
+                        <span><strong>Author Email:</strong> {paper.author?.email || 'N/A'}</span>
+                        {paper.author?.institution && <span><strong>Institution:</strong> {paper.author.institution}</span>}
                         {paper.category && <span><strong>Category:</strong> {paper.category}</span>}
+                      </div>
+
+                      {/* Manuscript Files */}
+                      <div className="bg-white p-3 rounded-xl border border-[#E6DDCF] space-y-2">
+                        <span className="font-bold text-[#3F2A1D] block">Submitted Manuscripts:</span>
+                        <div className="flex flex-wrap items-center gap-3">
+                          {paper.fileWithAuthor ? (
+                            <a
+                              href={paper.fileWithAuthor}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#C8A45D]/40 rounded-xl font-medium transition"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-[#C8A45D]" />
+                              <span>Marked Manuscript (with Author)</span>
+                              <ExternalLink className="w-3 h-3 opacity-60" />
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 italic">No marked manuscript</span>
+                          )}
+
+                          {paper.fileWithoutAuthor ? (
+                            <a
+                              href={paper.fileWithoutAuthor}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-xl font-medium transition"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-gray-500" />
+                              <span>Blind Manuscript (Anonymized)</span>
+                              <ExternalLink className="w-3 h-3 opacity-60" />
+                            </a>
+                          ) : (
+                            <span className="text-gray-400 italic">No blind manuscript</span>
+                          )}
+                        </div>
                       </div>
 
                       {/* Reviewer feedback if available */}
@@ -806,7 +869,7 @@ export default function AdminDashboardClient() {
               <h3 className="font-serif text-lg font-bold text-[#3F2A1D] mt-1 truncate">
                 {confirmPaper.title}
               </h3>
-              <p className="text-gray-500 mt-0.5">Author: {confirmPaper.author.name}</p>
+              <p className="text-gray-500 mt-0.5">Author: {confirmPaper.author?.name || 'Author'}</p>
             </div>
 
             <form onSubmit={handleConfirmPublication} className="space-y-3">

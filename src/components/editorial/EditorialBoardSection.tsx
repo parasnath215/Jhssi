@@ -16,15 +16,16 @@ export default function EditorialBoardSection() {
     email: ""
   };
 
-  const leadership = [
-    {
-      role: "Editor-in-Chief",
-      name: "Prof. Ripu Sudan Singh",
-      affiliation: "Babasaheb Bhimrao Ambedkar Central University, Lucknow",
-      email: "journalofhssi@gmail.com",
-      image: "/photos/ripu-singh.jpg",
-      highlight: true
-    },
+  const editorInChief = {
+    role: "Editor-in-Chief",
+    name: "Prof. Ripu Sudan Singh",
+    affiliation: "Babasaheb Bhimrao Ambedkar Central University, Lucknow",
+    email: "journalofhssi@gmail.com",
+    image: "/photos/ripu-singh.jpg",
+    highlight: true
+  };
+
+  const associateEditors = [
     {
       role: "Associate Editor",
       name: "Dr. Siddharth Mukerji",
@@ -125,52 +126,101 @@ export default function EditorialBoardSection() {
             <p className="text-[#7A6F63] text-sm mt-1">Editor-in-Chief & Associate Editors</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {leadership.map((person, index) => (
+          <div className="max-w-4xl mx-auto space-y-6">
+            {/* First Line: Editor-in-Chief */}
+            <div className="max-w-md mx-auto">
               <motion.div
-                key={index}
                 className="bg-white border border-[#E6DDCF] rounded-2xl p-6 flex flex-col justify-between hover:border-[#C8A45D] hover:shadow-md transition-all"
                 initial={{ opacity: 0, y: 20 }}
                 animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-                transition={{ delay: 0.15 + index * 0.1 }}
+                transition={{ delay: 0.15 }}
                 whileHover={{ y: -4 }}
               >
                 <div>
                   <div className="flex items-center justify-between mb-4">
                     <span className="inline-block px-3 py-1 bg-[#F6F1E8] border border-[#E6DDCF] text-[#6B4A2E] text-xs font-semibold rounded-full uppercase tracking-wider">
-                      {person.role}
+                      {editorInChief.role}
                     </span>
                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6B4A2E] to-[#3F2A1D] text-white flex items-center justify-center font-bold text-sm">
-                      {person.name.replace(/^(Prof\.|Dr\.)\s*/, "").charAt(0)}
+                      {editorInChief.name.replace(/^(Prof\.|Dr\.)\s*/, "").charAt(0)}
                     </div>
                   </div>
 
                   <h4 className="font-serif text-lg font-bold text-[#3F2A1D] mb-1">
-                    {person.name}
+                    {editorInChief.name}
                   </h4>
-                  {person.affiliation && (
+                  {editorInChief.affiliation && (
                     <p className="text-[#7A6F63] text-sm leading-relaxed mb-4">
-                      {person.affiliation}
+                      {editorInChief.affiliation}
                     </p>
                   )}
                 </div>
 
-                {person.email && (
+                {editorInChief.email && (
                   <div className="pt-3 border-t border-[#F0E8DC]">
                     <a
-                      href={`mailto:${person.email}`}
+                      href={`mailto:${editorInChief.email}`}
                       className="inline-flex items-center gap-2 text-xs text-[#6B4A2E] hover:text-[#3F2A1D] transition-colors truncate max-w-full font-medium"
-                      title={person.email}
+                      title={editorInChief.email}
                     >
                       <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
-                      <span className="truncate">{person.email}</span>
+                      <span className="truncate">{editorInChief.email}</span>
                     </a>
                   </div>
                 )}
               </motion.div>
-            ))}
+            </div>
+
+            {/* Second Line: Associate Editors */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {associateEditors.map((person, index) => (
+                <motion.div
+                  key={index}
+                  className="bg-white border border-[#E6DDCF] rounded-2xl p-6 flex flex-col justify-between hover:border-[#C8A45D] hover:shadow-md transition-all"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+                  transition={{ delay: 0.25 + index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="inline-block px-3 py-1 bg-[#F6F1E8] border border-[#E6DDCF] text-[#6B4A2E] text-xs font-semibold rounded-full uppercase tracking-wider">
+                        {person.role}
+                      </span>
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#6B4A2E] to-[#3F2A1D] text-white flex items-center justify-center font-bold text-sm">
+                        {person.name.replace(/^(Prof\.|Dr\.)\s*/, "").charAt(0)}
+                      </div>
+                    </div>
+
+                    <h4 className="font-serif text-lg font-bold text-[#3F2A1D] mb-1">
+                      {person.name}
+                    </h4>
+                    {person.affiliation && (
+                      <p className="text-[#7A6F63] text-sm leading-relaxed mb-4">
+                        {person.affiliation}
+                      </p>
+                    )}
+                  </div>
+
+                  {person.email && (
+                    <div className="pt-3 border-t border-[#F0E8DC]">
+                      <a
+                        href={`mailto:${person.email}`}
+                        className="inline-flex items-center gap-2 text-xs text-[#6B4A2E] hover:text-[#3F2A1D] transition-colors truncate max-w-full font-medium"
+                        title={person.email}
+                      >
+                        <svg className="w-3.5 h-3.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                        </svg>
+                        <span className="truncate">{person.email}</span>
+                      </a>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
 

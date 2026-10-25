@@ -677,9 +677,9 @@ export default function AdminDashboardClient() {
                         </button>
                       )}
 
-                      {paper.fileWithAuthor && (
+                      {(paper.fileWithAuthor || paper.id) && (
                         <a
-                          href={paper.fileWithAuthor}
+                          href={`/api/submission/download?id=${paper.id}&type=identified`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="p-1.5 text-gray-500 hover:text-[#6B4A2E] hover:bg-[#F6F1E8] rounded-lg transition"
@@ -729,9 +729,9 @@ export default function AdminDashboardClient() {
                       <div className="bg-white p-3 rounded-xl border border-[#E6DDCF] space-y-2">
                         <span className="font-bold text-[#3F2A1D] block">Submitted Manuscripts:</span>
                         <div className="flex flex-wrap items-center gap-3">
-                          {paper.fileWithAuthor ? (
+                          {paper.fileWithAuthor || paper.id ? (
                             <a
-                              href={paper.fileWithAuthor}
+                              href={`/api/submission/download?id=${paper.id}&type=identified`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#C8A45D]/40 rounded-xl font-medium transition"
@@ -744,9 +744,9 @@ export default function AdminDashboardClient() {
                             <span className="text-gray-400 italic">No marked manuscript</span>
                           )}
 
-                          {paper.fileWithoutAuthor ? (
+                          {paper.fileWithoutAuthor || paper.id ? (
                             <a
-                              href={paper.fileWithoutAuthor}
+                              href={`/api/submission/download?id=${paper.id}&type=anonymized`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-xl font-medium transition"

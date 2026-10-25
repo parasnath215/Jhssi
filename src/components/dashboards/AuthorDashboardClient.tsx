@@ -843,7 +843,7 @@ export default function AuthorDashboardClient() {
                           )}
 
                           <a
-                            href={paper.fileWithAuthor}
+                            href={`/api/submission/download?id=${paper.id}&type=identified`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="p-2 text-gray-500 hover:text-[#6B4A2E] hover:bg-[#F6F1E8] rounded-xl transition"
@@ -904,11 +904,11 @@ export default function AuthorDashboardClient() {
                           {/* Download links */}
                           <div className="flex items-center gap-4 text-gray-500 pt-1">
                             <span className="font-semibold text-[#3F2A1D]">Manuscript Files:</span>
-                            <a href={paper.fileWithAuthor} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#6B4A2E]">
+                            <a href={`/api/submission/download?id=${paper.id}&type=identified`} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#6B4A2E]">
                               Identified PDF (with author info)
                             </a>
                             <span>•</span>
-                            <a href={paper.fileWithoutAuthor} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#6B4A2E]">
+                            <a href={`/api/submission/download?id=${paper.id}&type=anonymized`} target="_blank" rel="noopener noreferrer" className="underline hover:text-[#6B4A2E]">
                               Blind PDF (anonymized)
                             </a>
                           </div>

@@ -36,7 +36,7 @@ export default function EditorialBoardSection() {
     {
       role: "Associate Editor",
       name: "Dr. Ranjan Singh",
-      affiliation: "Academician",
+      affiliation: "Environmental Governance",
       email: "Ranjan24ap@gmail.com",
       highlight: false
     }
@@ -224,7 +224,7 @@ export default function EditorialBoardSection() {
           </div>
         </div>
 
-        {/* Editorial Board - International */}
+        {/* Editorial Board */}
         <motion.div 
           className="bg-white border border-[#E6DDCF] rounded-2xl p-8"
           initial={{ opacity: 0, y: 30 }}
@@ -233,7 +233,7 @@ export default function EditorialBoardSection() {
         >
           <div className="text-center mb-8">
             <h3 className="font-serif text-2xl text-[#3F2A1D] mb-2">
-              Editorial Board - International
+              Editorial Board
             </h3>
             <div className="h-0.5 w-16 bg-[#C8A45D] mx-auto"></div>
           </div>

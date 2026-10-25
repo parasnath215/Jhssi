@@ -357,7 +357,7 @@ export default function ReviewerDashboardClient() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 shrink-0">
                       <a
-                        href={paper.fileWithoutAuthor}
+                        href={`/api/submission/download?id=${paper.id}&type=anonymized`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#E6DDCF] rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"

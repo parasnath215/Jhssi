@@ -357,27 +357,28 @@ export default function ReviewerDashboardClient() {
                     {/* Actions */}
                     <div className="flex items-center gap-2 shrink-0">
                       <a
-                        href={`/api/submission/download?id=${paper.id}&type=anonymized`}
+                        href={`/api/submission/download?id=${paper.id}&type=anonymized&watermark=jhssi`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#E6DDCF] rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"
+                        className="px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#C8A45D]/40 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition shadow-2xs"
+                        title="Download Watermarked Blind PDF (JHSSI Protected)"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                        <span>Download Blind PDF</span>
+                        <Download className="w-3.5 h-3.5 text-[#C8A45D]" />
+                        <span>Watermarked PDF (JHSSI)</span>
                       </a>
 
                       {isPending ? (
                         <button
                           onClick={() => handleOpenReviewModal(paper)}
-                          className="px-3.5 py-1.5 bg-[#6B4A2E] hover:bg-[#523720] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs"
+                          className="px-3.5 py-1.5 bg-[#6B4A2E] hover:bg-[#523720] text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer"
                         >
                           <Star className="w-3.5 h-3.5 text-[#C8A45D]" />
-                          <span>Evaluate Paper</span>
+                          <span>Evaluate & Send to Admin</span>
                         </button>
                       ) : (
                         <button
                           onClick={() => handleOpenReviewModal(paper)}
-                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-medium transition"
+                          className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-medium transition cursor-pointer"
                         >
                           <span>Review Again</span>
                         </button>
@@ -385,7 +386,7 @@ export default function ReviewerDashboardClient() {
 
                       <button
                         onClick={() => setExpandedId(isExpanded ? null : paper.id)}
-                        className="px-2.5 py-1.5 text-xs text-[#6B4A2E] hover:bg-[#F6F1E8] rounded-xl flex items-center gap-1 font-medium transition"
+                        className="px-2.5 py-1.5 text-xs text-[#6B4A2E] hover:bg-[#F6F1E8] rounded-xl flex items-center gap-1 font-medium transition cursor-pointer"
                       >
                         <span>{isExpanded ? 'Less' : 'Details'}</span>
                         {isExpanded ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -396,6 +397,12 @@ export default function ReviewerDashboardClient() {
                   {/* Expandable Details */}
                   {isExpanded && (
                     <div className="px-4 pb-4 pt-2 border-t border-[#E6DDCF]/60 bg-[#FBF9F5]/40 rounded-b-2xl space-y-3 text-xs">
+                      <div className="flex items-center gap-2 text-stone-500 font-medium">
+                        <span className="px-2 py-0.5 bg-stone-100 text-stone-700 rounded-md">Blind Peer Review Copy</span>
+                        <span>•</span>
+                        <span>Watermarked with JHSSI Authenticity Stamp</span>
+                      </div>
+
                       <div>
                         <span className="font-bold text-[#3F2A1D] block mb-1">Abstract:</span>
                         <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{paper.abstract}</p>
@@ -416,6 +423,11 @@ export default function ReviewerDashboardClient() {
                             Your Evaluation for v{paper.reviews[0].versionReviewed} ({paper.reviews[0].recommendation}):
                           </span>
                           <p className="text-gray-700 italic">"{paper.reviews[0].commentsForAuthor}"</p>
+                          {paper.reviews[0].confidentialNotes && (
+                            <p className="text-stone-500 text-[11px] mt-1">
+                              <strong>Confidential Note to Admin:</strong> {paper.reviews[0].confidentialNotes}
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -463,7 +475,7 @@ export default function ReviewerDashboardClient() {
                   <button
                     type="button"
                     onClick={() => setRecommendation('APPROVE')}
-                    className={`p-3 rounded-xl border-2 text-left transition flex items-center gap-2 ${
+                    className={`p-3 rounded-xl border-2 text-left transition flex items-center gap-2 cursor-pointer ${
                       recommendation === 'APPROVE'
                         ? 'border-emerald-600 bg-emerald-50 text-emerald-950 font-bold'
                         : 'border-gray-200 text-gray-700'
@@ -479,7 +491,7 @@ export default function ReviewerDashboardClient() {
                   <button
                     type="button"
                     onClick={() => setRecommendation('REVISE')}
-                    className={`p-3 rounded-xl border-2 text-left transition flex items-center gap-2 ${
+                    className={`p-3 rounded-xl border-2 text-left transition flex items-center gap-2 cursor-pointer ${
                       recommendation === 'REVISE'
                         ? 'border-orange-500 bg-orange-50 text-orange-950 font-bold'
                         : 'border-gray-200 text-gray-700'
@@ -488,7 +500,7 @@ export default function ReviewerDashboardClient() {
                     <AlertCircle className={`w-4 h-4 ${recommendation === 'REVISE' ? 'text-orange-600' : 'text-gray-400'}`} />
                     <div>
                       <span className="block">Request Revisions</span>
-                      <span className="text-[10px] font-normal opacity-75">Return to Author</span>
+                      <span className="text-[10px] font-normal opacity-75">Send back with comments</span>
                     </div>
                   </button>
                 </div>
@@ -545,10 +557,10 @@ export default function ReviewerDashboardClient() {
                 </div>
               </div>
 
-              {/* Feedback */}
+              {/* Feedback for Author & Editor */}
               <div>
                 <label className="font-bold text-[#3F2A1D] block mb-1">
-                  Comments for Author * (Constructive Academic Feedback)
+                  Comments for Author & Editor * (Scholarly Feedback)
                 </label>
                 <textarea
                   required
@@ -564,22 +576,39 @@ export default function ReviewerDashboardClient() {
                 />
               </div>
 
+              {/* Confidential Notes for Admin */}
+              <div>
+                <label className="font-bold text-[#3F2A1D] block mb-1">
+                  Confidential Comments for Admin / Editor-in-Chief (Optional)
+                </label>
+                <textarea
+                  rows={2}
+                  placeholder="Private remarks seen only by the Editorial Board..."
+                  value={confidentialNotes}
+                  onChange={e => setConfidentialNotes(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#FBF9F5] border border-[#E6DDCF] rounded-xl focus:outline-hidden"
+                />
+                <span className="text-[10px] text-gray-500 mt-0.5 block">
+                  These notes will be delivered directly to the Admin and will not be disclosed to the author.
+                </span>
+              </div>
+
               <div className="pt-2 flex justify-end gap-2 border-t border-[#E6DDCF]">
                 <button
                   type="button"
                   onClick={() => setSelectedSubmission(null)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl"
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={submittingReview}
-                  className={`px-5 py-2 rounded-xl font-bold text-white transition disabled:opacity-50 ${
+                  className={`px-5 py-2 rounded-xl font-bold text-white transition disabled:opacity-50 cursor-pointer ${
                     recommendation === 'APPROVE' ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-orange-600 hover:bg-orange-700'
                   }`}
                 >
-                  {submittingReview ? 'Submitting...' : recommendation === 'APPROVE' ? 'Approve Manuscript' : 'Request Revisions'}
+                  {submittingReview ? 'Sending to Editor...' : 'Submit & Send to Editor'}
                 </button>
               </div>
             </form>

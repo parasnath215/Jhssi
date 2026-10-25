@@ -41,6 +41,15 @@ export async function GET(request: NextRequest) {
             fieldOfStudy: true,
           },
         },
+        assignedReviewer2: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            institution: true,
+            fieldOfStudy: true,
+          },
+        },
         reviews: {
           include: {
             reviewer: {
@@ -76,7 +85,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH - Assign reviewer to submission (admin only)
+// PATCH - Assign up to 2 reviewers to submission (admin only)
 export async function PATCH(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
@@ -93,35 +102,54 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { submissionId, reviewerId } = body;
+    const { submissionId, reviewerId, reviewer2Id } = body;
 
-    if (!submissionId || !reviewerId) {
+    if (!submissionId) {
       return NextResponse.json(
-        { error: 'Submission ID and Reviewer ID are required' },
+        { error: 'Submission ID is required' },
         { status: 400 }
       );
     }
 
-    // Verify reviewer exists
-    const reviewer = await prisma.user.findFirst({
-      where: {
-        id: reviewerId,
-        role: { in: ['REVIEWER', 'ADMIN'] },
-      },
-    });
-
-    if (!reviewer) {
+    if (reviewerId && reviewer2Id && reviewerId === reviewer2Id) {
       return NextResponse.json(
-        { error: 'Invalid reviewer ID or user is not a reviewer' },
+        { error: 'Reviewer 1 and Reviewer 2 must be different reviewers' },
         { status: 400 }
       );
     }
+
+    // Verify Reviewer 1 if provided
+    let reviewer1Name = '';
+    if (reviewerId) {
+      const r1 = await prisma.user.findFirst({
+        where: { id: reviewerId, role: { in: ['REVIEWER', 'ADMIN'] } },
+      });
+      if (!r1) {
+        return NextResponse.json({ error: 'Invalid Reviewer 1 ID' }, { status: 400 });
+      }
+      reviewer1Name = r1.name;
+    }
+
+    // Verify Reviewer 2 if provided
+    let reviewer2Name = '';
+    if (reviewer2Id) {
+      const r2 = await prisma.user.findFirst({
+        where: { id: reviewer2Id, role: { in: ['REVIEWER', 'ADMIN'] } },
+      });
+      if (!r2) {
+        return NextResponse.json({ error: 'Invalid Reviewer 2 ID' }, { status: 400 });
+      }
+      reviewer2Name = r2.name;
+    }
+
+    const hasAnyReviewer = !!(reviewerId || reviewer2Id);
 
     const submission = await prisma.submission.update({
       where: { id: submissionId },
       data: {
-        assignedReviewerId: reviewerId,
-        status: 'UNDER_REVIEW',
+        assignedReviewerId: reviewerId || null,
+        assignedReviewer2Id: reviewer2Id || null,
+        status: hasAnyReviewer ? 'UNDER_REVIEW' : 'PENDING',
       },
       include: {
         author: {
@@ -136,13 +164,26 @@ export async function PATCH(request: NextRequest) {
             id: true,
             name: true,
             email: true,
+            institution: true,
+          },
+        },
+        assignedReviewer2: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            institution: true,
           },
         },
       },
     });
 
+    const assignedNames = [reviewer1Name, reviewer2Name].filter(Boolean).join(' & ');
+
     return NextResponse.json({
-      message: `Manuscript successfully assigned to reviewer ${reviewer.name}`,
+      message: assignedNames
+        ? `Manuscript assigned to ${assignedNames} for peer review.`
+        : 'Reviewers unassigned.',
       submission,
     });
   } catch (error) {

@@ -20,13 +20,17 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Fetch assigned submissions
+    // Fetch submissions assigned to this reviewer (either as Reviewer 1 or Reviewer 2)
     const submissions = await prisma.submission.findMany({
       where: {
-        assignedReviewerId: session.user.id,
+        OR: [
+          { assignedReviewerId: session.user.id },
+          { assignedReviewer2Id: session.user.id },
+        ],
       },
       select: {
         id: true,
+        manuscriptNo: true,
         title: true,
         abstract: true,
         keywords: true,

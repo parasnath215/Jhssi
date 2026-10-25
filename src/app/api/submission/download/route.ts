@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { generateManuscriptPdfBuffer } from '@/lib/pdfGenerator';
+import { generateManuscriptPdfBuffer, addWatermarkToPdfBuffer } from '@/lib/pdfGenerator';
 import path from 'path';
 import { existsSync } from 'fs';
 import { readFile } from 'fs/promises';
@@ -13,6 +13,10 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id');
     const type = searchParams.get('type') || 'identified'; // 'identified' or 'anonymized'
     const requestedFile = searchParams.get('file');
+    const shouldWatermark =
+      searchParams.get('watermark') === 'jhssi' ||
+      searchParams.get('watermark') === 'true' ||
+      type === 'anonymized';
 
     let submission: any = null;
 
@@ -76,8 +80,14 @@ export async function GET(request: NextRequest) {
 
       for (const diskPath of possibleDiskPaths) {
         if (existsSync(diskPath)) {
-          const fileBuffer = await readFile(diskPath);
+          let fileBuffer: any = await readFile(diskPath);
           const ext = path.extname(diskPath).toLowerCase();
+
+          // Apply watermark for reviewers if it's a PDF
+          if (shouldWatermark && ext === '.pdf') {
+            fileBuffer = await addWatermarkToPdfBuffer(fileBuffer, 'JHSSI - CONFIDENTIAL PEER REVIEW');
+          }
+
           const contentType =
             ext === '.pdf'
               ? 'application/pdf'
@@ -87,7 +97,7 @@ export async function GET(request: NextRequest) {
               ? 'application/msword'
               : 'application/octet-stream';
 
-          const outFilename = `${(submission?.manuscriptNo || 'JHSSI-Manuscript').replace(/[^a-zA-Z0-9_-]/g, '_')}_${type}${ext}`;
+          const outFilename = `${(submission?.manuscriptNo || 'JHSSI-Manuscript').replace(/[^a-zA-Z0-9_-]/g, '_')}_${type}${shouldWatermark ? '_Watermarked' : ''}${ext}`;
 
           return new Response(new Uint8Array(fileBuffer), {
             status: 200,
@@ -102,12 +112,11 @@ export async function GET(request: NextRequest) {
     }
 
     // If physical file does not exist on disk, dynamically generate the official PDF
-    // so the user NEVER encounters a 404 error!
-    const pdfBuffer = generateManuscriptPdfBuffer({
+    let pdfBuffer = generateManuscriptPdfBuffer({
       manuscriptNo: submission?.manuscriptNo || 'JHSSI-26-0004',
       title: submission?.title || 'Academic Research Manuscript',
-      authorName: submission?.author?.name || 'Contributing Author',
-      institution: submission?.author?.institution || 'Academic Institution',
+      authorName: type === 'anonymized' ? null : (submission?.author?.name || 'Contributing Author'),
+      institution: type === 'anonymized' ? null : (submission?.author?.institution || 'Academic Institution'),
       category: submission?.category || 'General Humanities & Social Sciences',
       abstract: submission?.abstract || 'The complete manuscript text and peer review records are registered in the JHSSI Editorial Management System.',
       keywords: submission?.keywords || 'Research, Humanities, Social Sciences',
@@ -116,8 +125,12 @@ export async function GET(request: NextRequest) {
       isAnonymized: type === 'anonymized',
     });
 
+    if (shouldWatermark) {
+      pdfBuffer = await addWatermarkToPdfBuffer(pdfBuffer, 'JHSSI - CONFIDENTIAL PEER REVIEW');
+    }
+
     const safeNo = (submission?.manuscriptNo || 'JHSSI-Manuscript').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const filename = `${safeNo}_${type}.pdf`;
+    const filename = `${safeNo}_${type}${shouldWatermark ? '_Watermarked' : ''}.pdf`;
 
     return new Response(new Uint8Array(pdfBuffer), {
       status: 200,
@@ -129,20 +142,23 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error serving manuscript download:', error);
-    const fallbackBuffer = generateManuscriptPdfBuffer({
+    let fallbackBuffer = generateManuscriptPdfBuffer({
       manuscriptNo: 'JHSSI-ARCHIVE',
       title: 'JHSSI Research Manuscript Document',
       authorName: 'JHSSI Author',
       abstract: 'Manuscript document registered with Journal of Humanities and Social Sciences Inventions.',
       keywords: 'JHSSI, Research, Open Access',
       status: 'VERIFIED',
+      isAnonymized: true,
     });
+
+    fallbackBuffer = await addWatermarkToPdfBuffer(fallbackBuffer, 'JHSSI - CONFIDENTIAL PEER REVIEW');
 
     return new Response(new Uint8Array(fallbackBuffer), {
       status: 200,
       headers: {
         'Content-Type': 'application/pdf',
-        'Content-Disposition': 'inline; filename="JHSSI_Manuscript.pdf"',
+        'Content-Disposition': 'inline; filename="JHSSI_Watermarked_Manuscript.pdf"',
       },
     });
   }

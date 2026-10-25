@@ -51,7 +51,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Manuscript not found' }, { status: 404 });
     }
 
-    if (session.user.role !== 'ADMIN' && submission.assignedReviewerId !== session.user.id) {
+    const isAssigned =
+      submission.assignedReviewerId === session.user.id ||
+      submission.assignedReviewer2Id === session.user.id;
+
+    if (session.user.role !== 'ADMIN' && !isAssigned) {
       return NextResponse.json(
         { error: 'You are not assigned as reviewer for this manuscript' },
         { status: 403 }

@@ -27,17 +27,15 @@ import {
   ChevronDown,
   ChevronUp,
   Copy,
-  Mail
+  Mail,
+  Users,
+  UserPlus,
+  RotateCcw,
+  MessageSquare,
+  Key
 } from 'lucide-react';
 import AdminEmailSettingsTab from '@/components/dashboards/AdminEmailSettingsTab';
-
-interface Reviewer {
-  id: string;
-  name: string;
-  email: string;
-  institution?: string;
-  fieldOfStudy?: string;
-}
+import AdminReviewersTab, { ReviewerData } from '@/components/dashboards/AdminReviewersTab';
 
 interface Review {
   id: string;
@@ -75,6 +73,7 @@ interface AdminSubmission {
   issue?: string;
   pages?: string;
   publishedAt?: string;
+  editorialComments?: string | null;
   author?: {
     id: string;
     name: string;
@@ -86,24 +85,47 @@ interface AdminSubmission {
     name: string;
     email: string;
     institution?: string;
-  };
+  } | null;
+  assignedReviewer2?: {
+    id: string;
+    name: string;
+    email: string;
+    institution?: string;
+  } | null;
   reviews: Review[];
 }
 
 export default function AdminDashboardClient() {
   const { data: session } = useSession();
   const [submissions, setSubmissions] = useState<AdminSubmission[]>([]);
-  const [reviewers, setReviewers] = useState<Reviewer[]>([]);
+  const [reviewers, setReviewers] = useState<ReviewerData[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CONFIRMATION' | 'PUBLISHED' | 'ALL' | 'EMAIL_SETUP'>('PIPELINE');
+  const [activeTab, setActiveTab] = useState<'PIPELINE' | 'CONFIRMATION' | 'PUBLISHED' | 'ALL' | 'REVIEWERS' | 'EMAIL_SETUP'>('PIPELINE');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  // Assign Reviewer Modal
+  // Assign Reviewer Modal (Dual Reviewers + Quick Add)
   const [assigningPaper, setAssigningPaper] = useState<AdminSubmission | null>(null);
-  const [selectedReviewerId, setSelectedReviewerId] = useState('');
+  const [selectedReviewer1Id, setSelectedReviewer1Id] = useState('');
+  const [selectedReviewer2Id, setSelectedReviewer2Id] = useState('');
   const [assigning, setAssigning] = useState(false);
+
+  // Quick Add Reviewer inside modal
+  const [isQuickAdding, setIsQuickAdding] = useState(false);
+  const [quickSlot, setQuickSlot] = useState<1 | 2>(1);
+  const [quickName, setQuickName] = useState('');
+  const [quickEmail, setQuickEmail] = useState('');
+  const [quickPassword, setQuickPassword] = useState('');
+  const [quickInstitution, setQuickInstitution] = useState('');
+  const [quickLoading, setQuickLoading] = useState(false);
+  const [quickError, setQuickError] = useState('');
+
+  // Send Back to Author Modal
+  const [sendBackPaper, setSendBackPaper] = useState<AdminSubmission | null>(null);
+  const [sendBackComments, setSendBackComments] = useState('');
+  const [sendingBack, setSendingBack] = useState(false);
+  const [sendBackError, setSendBackError] = useState('');
 
   // Final Confirmation Publish Modal
   const [confirmPaper, setConfirmPaper] = useState<AdminSubmission | null>(null);
@@ -174,9 +196,17 @@ export default function AdminDashboardClient() {
     }
   };
 
+  const handleOpenAssignModal = (paper: AdminSubmission) => {
+    setAssigningPaper(paper);
+    setSelectedReviewer1Id(paper.assignedReviewer?.id || '');
+    setSelectedReviewer2Id(paper.assignedReviewer2?.id || '');
+    setIsQuickAdding(false);
+    setQuickError('');
+  };
+
   const handleAssignReviewer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!assigningPaper || !selectedReviewerId) return;
+    if (!assigningPaper) return;
 
     setAssigning(true);
     try {
@@ -185,20 +215,106 @@ export default function AdminDashboardClient() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           submissionId: assigningPaper.id,
-          reviewerId: selectedReviewerId,
+          reviewerId: selectedReviewer1Id || null,
+          reviewer2Id: selectedReviewer2Id || null,
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Assignment failed');
 
-      alert(data.message || 'Reviewer assigned successfully!');
+      alert(data.message || 'Reviewers assigned successfully!');
       setAssigningPaper(null);
-      setSelectedReviewerId('');
+      setSelectedReviewer1Id('');
+      setSelectedReviewer2Id('');
       fetchData();
     } catch (err: any) {
-      alert(err.message || 'Error assigning reviewer');
+      alert(err.message || 'Error assigning reviewers');
     } finally {
       setAssigning(false);
+    }
+  };
+
+  const handleQuickAddReviewer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setQuickError('');
+    if (!quickName.trim() || !quickEmail.trim() || !quickPassword) {
+      setQuickError('Name, Email (ID), and Password are required.');
+      return;
+    }
+
+    setQuickLoading(true);
+    try {
+      const res = await fetch('/api/users/reviewers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: quickName.trim(),
+          email: quickEmail.trim(),
+          password: quickPassword,
+          institution: quickInstitution.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to create reviewer account');
+
+      const created = data.reviewer;
+      setReviewers(prev => [...prev, created]);
+      if (quickSlot === 1) {
+        setSelectedReviewer1Id(created.id);
+      } else {
+        setSelectedReviewer2Id(created.id);
+      }
+
+      setQuickName('');
+      setQuickEmail('');
+      setQuickPassword('');
+      setQuickInstitution('');
+      setIsQuickAdding(false);
+      alert(`Reviewer "${created.name}" created and assigned to Slot ${quickSlot}!`);
+    } catch (err: any) {
+      setQuickError(err.message || 'Error creating reviewer');
+    } finally {
+      setQuickLoading(false);
+    }
+  };
+
+  const handleOpenSendBackModal = (paper: AdminSubmission) => {
+    setSendBackPaper(paper);
+    setSendBackComments(paper.editorialComments || '');
+    setSendBackError('');
+  };
+
+  const handleSendBackToAuthor = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sendBackPaper || !sendBackComments.trim()) {
+      setSendBackError('Please enter revision comments or instructions for the author.');
+      return;
+    }
+
+    setSendingBack(true);
+    setSendBackError('');
+    try {
+      const res = await fetch('/api/submission/send-back', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          submissionId: sendBackPaper.id,
+          comments: sendBackComments.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to send back paper');
+
+      alert(data.message || 'Paper sent back to author with revision instructions.');
+      setSendBackPaper(null);
+      setSendBackComments('');
+      fetchData();
+    } catch (err: any) {
+      setSendBackError(err.message || 'Error sending back manuscript');
+    } finally {
+      setSendingBack(false);
     }
   };
 
@@ -518,6 +634,18 @@ export default function AdminDashboardClient() {
             </button>
 
             <button
+              onClick={() => setActiveTab('REVIEWERS')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'REVIEWERS'
+                  ? 'bg-[#6B4A2E] text-white shadow-xs'
+                  : 'text-[#6B4A2E] hover:text-[#3F2A1D]'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              <span>Reviewers ({reviewers.length})</span>
+            </button>
+
+            <button
               onClick={() => setActiveTab('EMAIL_SETUP')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'EMAIL_SETUP'
@@ -531,7 +659,7 @@ export default function AdminDashboardClient() {
           </div>
 
           {/* Search Box */}
-          {activeTab !== 'EMAIL_SETUP' && (
+          {activeTab !== 'EMAIL_SETUP' && activeTab !== 'REVIEWERS' && (
             <div className="relative w-full sm:w-64">
               <Search className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[#6B4A2E]/60" />
               <input
@@ -561,9 +689,11 @@ export default function AdminDashboardClient() {
           </div>
         )}
 
-        {/* Papers List or Email Setup */}
+        {/* Papers List, Reviewers Tab, or Email Setup */}
         {activeTab === 'EMAIL_SETUP' ? (
           <AdminEmailSettingsTab />
+        ) : activeTab === 'REVIEWERS' ? (
+          <AdminReviewersTab reviewers={reviewers} onRefresh={fetchData} />
         ) : loading ? (
           <div className="p-12 text-center text-xs text-[#6B4A2E] bg-white rounded-2xl border border-[#E6DDCF]">
             <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-[#C8A45D]" />
@@ -630,9 +760,17 @@ export default function AdminDashboardClient() {
                           </span>
                         )}
 
-                        {paper.assignedReviewer && !isPublished && (
-                          <span className="text-[11px] text-blue-800 font-medium">
-                            Reviewer: {paper.assignedReviewer.name}
+                        {!isPublished && (paper.assignedReviewer || paper.assignedReviewer2) && (
+                          <span className="text-[11px] text-blue-800 font-semibold bg-blue-50 px-2 py-0.5 rounded-md border border-blue-200">
+                            {paper.assignedReviewer ? `R1: ${paper.assignedReviewer.name}` : ''}
+                            {paper.assignedReviewer && paper.assignedReviewer2 ? ' • ' : ''}
+                            {paper.assignedReviewer2 ? `R2: ${paper.assignedReviewer2.name}` : ''}
+                          </span>
+                        )}
+
+                        {paper.editorialComments && (
+                          <span className="text-[10px] text-amber-950 font-bold bg-amber-100 px-2 py-0.5 rounded-md border border-amber-300">
+                            Revisions Requested
                           </span>
                         )}
 
@@ -665,16 +803,25 @@ export default function AdminDashboardClient() {
                       )}
 
                       {!isPublished && (
-                        <button
-                          onClick={() => {
-                            setAssigningPaper(paper);
-                            setSelectedReviewerId(paper.assignedReviewer?.id || (reviewers[0]?.id || ''));
-                          }}
-                          className="px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#E6DDCF] rounded-xl text-xs font-medium transition flex items-center gap-1"
-                        >
-                          <UserCheck className="w-3.5 h-3.5" />
-                          <span>{paper.assignedReviewer ? 'Reassign' : 'Assign'}</span>
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleOpenAssignModal(paper)}
+                            className="px-3 py-1.5 bg-[#F6F1E8] hover:bg-[#E6DDCF] text-[#6B4A2E] border border-[#E6DDCF] rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
+                            title="Assign up to 2 Peer Reviewers"
+                          >
+                            <UserCheck className="w-3.5 h-3.5" />
+                            <span>{paper.assignedReviewer || paper.assignedReviewer2 ? 'Reviewers' : 'Assign'}</span>
+                          </button>
+
+                          <button
+                            onClick={() => handleOpenSendBackModal(paper)}
+                            className="px-3 py-1.5 bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer"
+                            title="Send back paper to author with revision instructions"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Send Back</span>
+                          </button>
+                        </>
                       )}
 
                       {(paper.fileWithAuthor || paper.id) && (
@@ -725,6 +872,52 @@ export default function AdminDashboardClient() {
                         {paper.category && <span><strong>Category:</strong> {paper.category}</span>}
                       </div>
 
+                      {/* Assigned Reviewers (Up to 2) */}
+                      <div className="bg-white p-3 rounded-xl border border-[#E6DDCF] space-y-2">
+                        <span className="font-bold text-[#3F2A1D] block">Assigned Peer Reviewers (Up to 2):</span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div className="p-2.5 rounded-xl border border-blue-100 bg-blue-50/50 text-xs">
+                            <span className="font-bold text-blue-950 block mb-0.5">Reviewer 1 (Primary):</span>
+                            {paper.assignedReviewer ? (
+                              <div>
+                                <span className="font-semibold text-[#3F2A1D]">{paper.assignedReviewer.name}</span>
+                                <span className="text-gray-500 block text-[11px]">{paper.assignedReviewer.email}</span>
+                                {paper.assignedReviewer.institution && (
+                                  <span className="text-gray-500 block text-[11px]">{paper.assignedReviewer.institution}</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 italic text-[11px]">Unassigned</span>
+                            )}
+                          </div>
+                          <div className="p-2.5 rounded-xl border border-blue-100 bg-blue-50/50 text-xs">
+                            <span className="font-bold text-blue-950 block mb-0.5">Reviewer 2 (Secondary):</span>
+                            {paper.assignedReviewer2 ? (
+                              <div>
+                                <span className="font-semibold text-[#3F2A1D]">{paper.assignedReviewer2.name}</span>
+                                <span className="text-gray-500 block text-[11px]">{paper.assignedReviewer2.email}</span>
+                                {paper.assignedReviewer2.institution && (
+                                  <span className="text-gray-500 block text-[11px]">{paper.assignedReviewer2.institution}</span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-gray-400 italic text-[11px]">Unassigned</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Editorial Send-Back Instructions */}
+                      {paper.editorialComments && (
+                        <div className="p-3 bg-amber-50/90 border border-amber-300 rounded-xl">
+                          <div className="flex items-center gap-1.5 font-bold text-amber-950 mb-1">
+                            <MessageSquare className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Editorial Board Send-Back Notes / Revision Instructions:</span>
+                          </div>
+                          <p className="text-amber-900 leading-relaxed whitespace-pre-wrap">{paper.editorialComments}</p>
+                        </div>
+                      )}
+
                       {/* Manuscript Files */}
                       <div className="bg-white p-3 rounded-xl border border-[#E6DDCF] space-y-2">
                         <span className="font-bold text-[#3F2A1D] block">Submitted Manuscripts:</span>
@@ -763,16 +956,30 @@ export default function AdminDashboardClient() {
 
                       {/* Reviewer feedback if available */}
                       {paper.reviews && paper.reviews.length > 0 && (
-                        <div className="p-3 bg-white border border-emerald-200 rounded-xl">
-                          <span className="font-bold text-emerald-950 block mb-1">
-                            Reviewer Feedback ({paper.reviews[0].reviewer.name} &mdash; {paper.reviews[0].recommendation}):
-                          </span>
-                          <p className="text-gray-800 italic">"{paper.reviews[0].commentsForAuthor}"</p>
-                          {paper.reviews[0].confidentialNotes && (
-                            <p className="text-gray-500 text-[11px] mt-1">
-                              <strong>Confidential Editor Note:</strong> {paper.reviews[0].confidentialNotes}
-                            </p>
-                          )}
+                        <div className="space-y-2">
+                          <span className="font-bold text-[#3F2A1D] block">Peer Reviewer Evaluations:</span>
+                          {paper.reviews.map((rev, idx) => (
+                            <div key={rev.id || idx} className="p-3 bg-white border border-emerald-200 rounded-xl space-y-1">
+                              <div className="flex flex-wrap items-center justify-between gap-1">
+                                <span className="font-bold text-emerald-950">
+                                  Evaluation by {rev.reviewer?.name || 'Reviewer'} &mdash; {rev.recommendation}
+                                </span>
+                                <span className="text-[10px] text-gray-500">
+                                  v{rev.versionReviewed} • {new Date(rev.createdAt).toLocaleDateString()}
+                                </span>
+                              </div>
+                              {rev.commentsForAuthor && (
+                                <p className="text-gray-800 italic text-xs leading-relaxed">
+                                  "{rev.commentsForAuthor}"
+                                </p>
+                              )}
+                              {rev.confidentialNotes && (
+                                <p className="text-amber-950 bg-amber-50/80 p-2 rounded-lg text-[11px] mt-1 border border-amber-200">
+                                  <strong>Confidential Note for Editor:</strong> {rev.confidentialNotes}
+                                </p>
+                              )}
+                            </div>
+                          ))}
                         </div>
                       )}
                     </div>
@@ -785,47 +992,192 @@ export default function AdminDashboardClient() {
       </main>
 
       {/* ============================================================ */}
-      {/* MODAL 1: ASSIGN REVIEWER */}
+      {/* MODAL 1: ASSIGN UP TO 2 REVIEWERS (WITH INLINE QUICK ADD) */}
       {/* ============================================================ */}
       {assigningPaper && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4 overflow-y-auto">
-          <div className="bg-white border border-[#E6DDCF] rounded-3xl max-w-md w-full p-6 shadow-2xl relative text-xs">
+          <div className="bg-white border border-[#E6DDCF] rounded-3xl max-w-lg w-full p-6 shadow-2xl relative text-xs max-h-[90vh] overflow-y-auto">
             <button
               onClick={() => setAssigningPaper(null)}
-              className="absolute top-5 right-5 p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+              className="absolute top-5 right-5 p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="mb-4">
               <span className="px-2.5 py-0.5 rounded-full bg-[#F6F1E8] text-[#6B4A2E] font-bold">
-                Assign Reviewer
+                Assign Reviewers (Up to 2)
               </span>
-              <h3 className="font-serif text-lg font-bold text-[#3F2A1D] mt-1 truncate">
+              <h3 className="font-serif text-lg font-bold text-[#3F2A1D] mt-1">
                 {assigningPaper.title}
               </h3>
+              <p className="text-[11px] text-gray-500 mt-0.5">
+                Author: {assigningPaper.author?.name || 'Author'} • Manuscript: {assigningPaper.manuscriptNo || 'N/A'}
+              </p>
             </div>
 
-            <form onSubmit={handleAssignReviewer} className="space-y-3">
-              <div>
-                <label className="font-bold text-[#3F2A1D] block mb-1">Select Peer Reviewer</label>
+            <form onSubmit={handleAssignReviewer} className="space-y-4">
+              {/* Reviewer 1 (Primary) */}
+              <div className="p-3 bg-[#FAF7F2] border border-[#E6DDCF] rounded-2xl space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-[#3F2A1D] flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-[#6B4A2E]" />
+                    <span>Reviewer 1 (Primary Reviewer)</span>
+                  </label>
+                  {selectedReviewer1Id && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedReviewer1Id('')}
+                      className="text-[10px] text-red-600 hover:underline"
+                    >
+                      Clear / Unassign
+                    </button>
+                  )}
+                </div>
                 <select
-                  required
-                  value={selectedReviewerId}
-                  onChange={e => setSelectedReviewerId(e.target.value)}
-                  className="w-full px-3 py-2 bg-[#FBF9F5] border border-[#E6DDCF] rounded-xl focus:outline-hidden"
+                  value={selectedReviewer1Id}
+                  onChange={e => setSelectedReviewer1Id(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#E6DDCF] rounded-xl focus:outline-hidden"
                 >
-                  <option value="">-- Choose Reviewer --</option>
+                  <option value="">-- No Reviewer Assigned --</option>
                   {reviewers.map(r => (
                     <option key={r.id} value={r.id}>
-                      {r.name} ({r.institution || 'Scholar'})
+                      {r.name} ({r.institution || r.email})
                     </option>
                   ))}
                 </select>
               </div>
 
-              <p className="text-[11px] text-gray-500">
-                The reviewer will receive strictly the anonymized blind copy. Author details are hidden.
+              {/* Reviewer 2 (Secondary) */}
+              <div className="p-3 bg-[#FAF7F2] border border-[#E6DDCF] rounded-2xl space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-[#3F2A1D] flex items-center gap-1.5">
+                    <UserCheck className="w-3.5 h-3.5 text-blue-700" />
+                    <span>Reviewer 2 (Secondary Reviewer - Optional)</span>
+                  </label>
+                  {selectedReviewer2Id && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedReviewer2Id('')}
+                      className="text-[10px] text-red-600 hover:underline"
+                    >
+                      Clear / Unassign
+                    </button>
+                  )}
+                </div>
+                <select
+                  value={selectedReviewer2Id}
+                  onChange={e => setSelectedReviewer2Id(e.target.value)}
+                  className="w-full px-3 py-2 bg-white border border-[#E6DDCF] rounded-xl focus:outline-hidden"
+                >
+                  <option value="">-- No Reviewer Assigned --</option>
+                  {reviewers.map(r => (
+                    <option key={r.id} value={r.id}>
+                      {r.name} ({r.institution || r.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Toggle Quick Add Inline Form */}
+              <div className="flex items-center justify-between pt-1">
+                <span className="text-[11px] text-gray-500">
+                  Need a reviewer not listed above?
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIsQuickAdding(!isQuickAdding)}
+                  className="text-xs font-bold text-[#6B4A2E] hover:underline flex items-center gap-1 cursor-pointer"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{isQuickAdding ? 'Hide Quick Add' : '+ Add New Reviewer Here'}</span>
+                </button>
+              </div>
+
+              {/* Quick Add Form */}
+              {isQuickAdding && (
+                <div className="p-3.5 bg-white border-2 border-dashed border-[#C8A45D] rounded-2xl space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-[#3F2A1D] flex items-center gap-1">
+                      <Key className="w-3.5 h-3.5 text-[#C8A45D]" />
+                      <span>Create New Reviewer Account with ID & Password</span>
+                    </span>
+                    <div className="flex items-center gap-2 text-[11px]">
+                      <span>Assign to:</span>
+                      <label className="flex items-center gap-1 font-semibold cursor-pointer">
+                        <input
+                          type="radio"
+                          name="slot"
+                          checked={quickSlot === 1}
+                          onChange={() => setQuickSlot(1)}
+                        />
+                        <span>R1</span>
+                      </label>
+                      <label className="flex items-center gap-1 font-semibold cursor-pointer">
+                        <input
+                          type="radio"
+                          name="slot"
+                          checked={quickSlot === 2}
+                          onChange={() => setQuickSlot(2)}
+                        />
+                        <span>R2</span>
+                      </label>
+                    </div>
+                  </div>
+
+                  {quickError && (
+                    <div className="p-2 bg-red-50 text-red-700 rounded-lg text-[11px] border border-red-200">
+                      {quickError}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Full Name (e.g. Dr. Jane)"
+                      value={quickName}
+                      onChange={e => setQuickName(e.target.value)}
+                      className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#E6DDCF] rounded-lg text-xs"
+                    />
+                    <input
+                      type="email"
+                      placeholder="Email / Login ID"
+                      value={quickEmail}
+                      onChange={e => setQuickEmail(e.target.value)}
+                      className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#E6DDCF] rounded-lg text-xs"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="text"
+                      placeholder="Password (min 6 chars)"
+                      value={quickPassword}
+                      onChange={e => setQuickPassword(e.target.value)}
+                      className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#E6DDCF] rounded-lg text-xs font-mono"
+                    />
+                    <input
+                      type="text"
+                      placeholder="Institution (optional)"
+                      value={quickInstitution}
+                      onChange={e => setQuickInstitution(e.target.value)}
+                      className="px-2.5 py-1.5 bg-[#FAF7F2] border border-[#E6DDCF] rounded-lg text-xs"
+                    />
+                  </div>
+
+                  <button
+                    type="button"
+                    disabled={quickLoading}
+                    onClick={handleQuickAddReviewer}
+                    className="w-full py-1.5 bg-[#6B4A2E] hover:bg-[#523720] text-white rounded-lg font-semibold transition disabled:opacity-50 cursor-pointer"
+                  >
+                    {quickLoading ? 'Creating Reviewer...' : `Create & Select as Reviewer ${quickSlot}`}
+                  </button>
+                </div>
+              )}
+
+              <p className="text-[11px] text-gray-500 italic">
+                Note: Reviewers will only receive the blind manuscript stamped with the JHSSI confidential watermark.
               </p>
 
               <div className="pt-2 flex justify-end gap-2 border-t border-gray-100">
@@ -838,10 +1190,90 @@ export default function AdminDashboardClient() {
                 </button>
                 <button
                   type="submit"
-                  disabled={assigning || !selectedReviewerId}
-                  className="bg-[#6B4A2E] hover:bg-[#523720] text-white px-5 py-2 rounded-xl font-bold transition disabled:opacity-50"
+                  disabled={assigning}
+                  className="bg-[#6B4A2E] hover:bg-[#523720] text-white px-5 py-2 rounded-xl font-bold transition disabled:opacity-50 cursor-pointer"
                 >
-                  {assigning ? 'Assigning...' : 'Confirm Assignment'}
+                  {assigning ? 'Saving Assignments...' : 'Save Reviewer Assignments'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================ */}
+      {/* MODAL: SEND BACK TO AUTHOR WITH REVISION COMMENTS */}
+      {/* ============================================================ */}
+      {sendBackPaper && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-2xs p-4 overflow-y-auto">
+          <div className="bg-white border-2 border-amber-400 rounded-3xl max-w-lg w-full p-6 shadow-2xl relative text-xs">
+            <button
+              onClick={() => setSendBackPaper(null)}
+              className="absolute top-5 right-5 p-1.5 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-100 cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="mb-4">
+              <span className="px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-950 font-bold">
+                Editorial Send-Back / Revisions
+              </span>
+              <h3 className="font-serif text-lg font-bold text-[#3F2A1D] mt-1">
+                Send Back Manuscript to Author
+              </h3>
+              <p className="text-gray-600 mt-0.5 truncate">
+                Paper: <strong>{sendBackPaper.title}</strong>
+              </p>
+              <p className="text-[11px] text-gray-500">
+                Author: {sendBackPaper.author?.name || 'Author'} ({sendBackPaper.author?.email || 'N/A'})
+              </p>
+            </div>
+
+            {sendBackError && (
+              <div className="mb-3 p-2.5 bg-red-50 text-red-700 rounded-xl border border-red-200">
+                {sendBackError}
+              </div>
+            )}
+
+            <form onSubmit={handleSendBackToAuthor} className="space-y-3">
+              <div>
+                <label className="font-bold text-[#3F2A1D] block mb-1">
+                  Revision Instructions & Editorial Feedback for Author *
+                </label>
+                <textarea
+                  required
+                  rows={5}
+                  placeholder="Detail the necessary changes, formatting fixes, or peer-review adjustments required from the author..."
+                  value={sendBackComments}
+                  onChange={e => setSendBackComments(e.target.value)}
+                  className="w-full px-3 py-2 bg-[#FAF7F2] border border-[#E6DDCF] rounded-xl focus:bg-white focus:outline-hidden resize-none leading-relaxed"
+                />
+              </div>
+
+              <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-xl text-[11px] text-amber-950 space-y-1">
+                <p className="font-bold">What happens next?</p>
+                <ul className="list-disc pl-4 space-y-0.5 text-amber-900">
+                  <li>The paper status will change to <strong>Revision Requested</strong>.</li>
+                  <li>An automated notification email with your instructions will be sent to the author.</li>
+                  <li>The author will be prompted to submit a revised manuscript and response letter in their dashboard.</li>
+                </ul>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setSendBackPaper(null)}
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-xl"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={sendingBack}
+                  className="bg-amber-700 hover:bg-amber-800 text-white px-5 py-2 rounded-xl font-bold transition disabled:opacity-50 flex items-center gap-1.5 cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>{sendingBack ? 'Sending Back...' : 'Send Back with Instructions'}</span>
                 </button>
               </div>
             </form>

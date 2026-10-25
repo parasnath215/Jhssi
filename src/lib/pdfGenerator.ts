@@ -283,3 +283,96 @@ ${650 + streamLength}
 
   return Buffer.from(pdfBody, 'utf8');
 }
+
+/**
+ * Applies an official JHSSI diagonal watermark and confidentiality banners to any PDF buffer.
+ * Used for double-blind reviewer access so reviewers only see watermarked blind PDFs.
+ */
+export async function addWatermarkToPdfBuffer(
+  inputBuffer: Buffer | Uint8Array | any,
+  watermarkText: string = 'JHSSI - CONFIDENTIAL PEER REVIEW'
+): Promise<Buffer> {
+  try {
+    const { PDFDocument, rgb, degrees, StandardFonts } = await import('pdf-lib');
+    const pdfDoc = await PDFDocument.load(inputBuffer);
+    const pages = pdfDoc.getPages();
+    const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
+
+    for (const page of pages) {
+      const { width, height } = page.getSize();
+
+      // Draw large diagonal watermark across the center
+      const fontSize = 30;
+      const textWidth = helveticaBold.widthOfTextAtSize(watermarkText, fontSize);
+      
+      page.drawText(watermarkText, {
+        x: (width - textWidth * 0.707) / 2 - 10,
+        y: height / 2 - 30,
+        size: fontSize,
+        font: helveticaBold,
+        color: rgb(0.78, 0.64, 0.36), // Gold #C8A45D
+        opacity: 0.28,
+        rotate: degrees(45),
+      });
+
+      // Secondary diagonal line for journal branding
+      const brandText = 'JOURNAL OF HUMANITIES AND SOCIAL SCIENCES INVENTIONS';
+      const brandSize = 14;
+      const brandWidth = helveticaBold.widthOfTextAtSize(brandText, brandSize);
+      page.drawText(brandText, {
+        x: (width - brandWidth * 0.707) / 2 - 10,
+        y: height / 2 - 75,
+        size: brandSize,
+        font: helveticaBold,
+        color: rgb(0.42, 0.29, 0.18), // #6B4A2E
+        opacity: 0.24,
+        rotate: degrees(45),
+      });
+
+      // Top Security Banner
+      page.drawRectangle({
+        x: 0,
+        y: height - 20,
+        width: width,
+        height: 20,
+        color: rgb(0.96, 0.94, 0.90), // #F6F1E8
+        opacity: 0.92,
+      });
+
+      page.drawText('JOURNAL OF HUMANITIES AND SOCIAL SCIENCES INVENTIONS (JHSSI) • BLIND PEER REVIEW COPY', {
+        x: 24,
+        y: height - 14,
+        size: 7.5,
+        font: helveticaBold,
+        color: rgb(0.42, 0.29, 0.18), // #6B4A2E
+        opacity: 0.95,
+      });
+
+      // Bottom Security Banner
+      page.drawRectangle({
+        x: 0,
+        y: 0,
+        width: width,
+        height: 18,
+        color: rgb(0.96, 0.94, 0.90),
+        opacity: 0.92,
+      });
+
+      page.drawText('CONFIDENTIAL • DOUBLE-BLIND EVALUATION • AUTHOR IDENTITY STRICTLY REDACTED • DO NOT DISTRIBUTE', {
+        x: 24,
+        y: 5.5,
+        size: 7,
+        font: helvetica,
+        color: rgb(0.42, 0.29, 0.18),
+        opacity: 0.9,
+      });
+    }
+
+    const pdfBytes = await pdfDoc.save();
+    return Buffer.from(pdfBytes);
+  } catch (err) {
+    console.error('Failed to add watermark with pdf-lib, returning original buffer:', err);
+    return inputBuffer;
+  }
+}

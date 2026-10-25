@@ -30,7 +30,8 @@ import {
   FileQuestion,
   FileX,
   Sparkles,
-  Inbox
+  Inbox,
+  MessageSquare
 } from 'lucide-react';
 
 interface Review {
@@ -66,7 +67,7 @@ interface Submission {
   version: number;
   manuscriptNo?: string;
   createdAt: string;
-  updatedAt: string;
+  editorialComments?: string | null;
   doi?: string;
   volume?: string;
   issue?: string;
@@ -878,6 +879,17 @@ export default function AuthorDashboardClient() {
                             <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{paper.abstract}</p>
                           </div>
 
+                          {/* Editorial comments if sent back by Admin */}
+                          {paper.editorialComments && (
+                            <div className="p-3 bg-amber-50/90 border border-amber-300 rounded-xl">
+                              <div className="flex items-center gap-1.5 font-bold text-amber-950 mb-1">
+                                <MessageSquare className="w-3.5 h-3.5 text-amber-700" />
+                                <span>Editorial Board Revision Instructions / Send-Back Notes:</span>
+                              </div>
+                              <p className="text-amber-900 leading-relaxed whitespace-pre-wrap">{paper.editorialComments}</p>
+                            </div>
+                          )}
+
                           {/* Reviewer Feedback if present */}
                           {paper.reviews && paper.reviews.length > 0 && (
                             <div className="p-3 bg-white border border-orange-200 rounded-xl">
@@ -1145,6 +1157,18 @@ export default function AuthorDashboardClient() {
                 Paper: <strong className="text-[#3F2A1D]">{revisionPaper.title}</strong> (Next: v{revisionPaper.version + 1})
               </p>
             </div>
+
+            {/* Editorial instructions if sent back by Admin */}
+            {revisionPaper.editorialComments && (
+              <div className="mb-4 p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs">
+                <span className="font-bold text-amber-950 block mb-1">
+                  Editorial Board Revision Instructions:
+                </span>
+                <p className="text-amber-900 text-[11px] leading-relaxed whitespace-pre-wrap">
+                  {revisionPaper.editorialComments}
+                </p>
+              </div>
+            )}
 
             {/* Reviewer Feedback reminder */}
             {revisionPaper.reviews && revisionPaper.reviews.length > 0 && (

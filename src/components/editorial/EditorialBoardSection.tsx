@@ -18,8 +18,8 @@ export default function EditorialBoardSection() {
 
   const editorInChief = {
     role: "Editor-in-Chief",
-    name: "Prof. Ripu Sudan Singh",
-    affiliation: "Babasaheb Bhimrao Ambedkar Central University, Lucknow",
+    name: "Ripu Sudan Singh",
+    affiliation: "Prof. of Political Science & International Studies, Department of Social Science, Babasaheb Bhimrao Ambedkar Central University, Lucknow",
     email: "journalofhssi@gmail.com",
     image: "/photos/ripu-singh.jpg",
     highlight: true
@@ -65,7 +65,7 @@ export default function EditorialBoardSection() {
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
         <div className="text-center">
-          <motion.h2 
+          <motion.h2
             className="font-serif text-3xl md:text-4xl text-[#3F2A1D] mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
@@ -73,7 +73,7 @@ export default function EditorialBoardSection() {
           >
             Editorial Board
           </motion.h2>
-          <motion.div 
+          <motion.div
             className="h-px w-24 bg-[#C8A45D] mx-auto"
             initial={{ width: 0 }}
             animate={isInView ? { width: "96px" } : { width: 0 }}
@@ -225,7 +225,7 @@ export default function EditorialBoardSection() {
         </div>
 
         {/* Editorial Board */}
-        <motion.div 
+        <motion.div
           className="bg-white border border-[#E6DDCF] rounded-2xl p-8"
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
@@ -237,7 +237,7 @@ export default function EditorialBoardSection() {
             </h3>
             <div className="h-0.5 w-16 bg-[#C8A45D] mx-auto"></div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {internationalBoard.map((member, index) => (
               <motion.div
@@ -252,7 +252,7 @@ export default function EditorialBoardSection() {
                   <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gradient-to-br from-[#6B4A2E] to-[#3F2A1D] text-white flex items-center justify-center font-bold text-base shadow-xs">
                     {member.name.replace(/^(Prof\.|Dr\.)\s*/, "").charAt(0)}
                   </div>
-                  
+
                   <div className="flex-1 min-w-0">
                     <h4 className="font-serif text-base font-bold text-[#3F2A1D] mb-1">
                       {member.name}
